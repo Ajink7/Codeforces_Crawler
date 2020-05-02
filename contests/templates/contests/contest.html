@@ -1,27 +1,5 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>Current or Upcoming Contests!</h1>
-    <div class="container">
-      <!-- <a href="{% url 'scrape' %}">Scrape</a> -->
-      <table>
-        <tr>
-          <th>ContestId</th>
-          <th>Name</th>
-          <th>Writers</th>
-          <th>Starting</th>
-          <th>length</th>
-        </tr>
-        {% for object in object_list %}
-        <tr>
-          <td>{{object.contestId}}</td>
-          <td>{{object.name}}</td>
-          <td>{{object.writers}}</td>
-          <td>{{object.starting}} IST</td>
-          <td>{{object.length}}</td>
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
-
+<a href="{% url 'CF_Schedule' %}">Codeforces Schedule</a>
 
 {% endblock %}
