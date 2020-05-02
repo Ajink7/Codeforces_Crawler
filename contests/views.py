@@ -1,17 +1,17 @@
 from django.shortcuts import render,redirect
-from .models import Contest
+from .models import CF_Contest
 import webbrowser,bs4,sys,requests
 import datetime
 from django.utils import timezone
 import pytz
 from dateutil.parser import parse
 # Create your views here.
-def contest(request):
-    scrape(request)
-    context = {'object_list':Contest.objects.filter(starting__gt=datetime.datetime.now()).order_by('starting')}
-    return render(request,'contests/contest.html',context)
+def CF_Schedule(request):
+    CF_scrape()
+    context = {'object_list':CF_Contest.objects.filter(starting__gt=datetime.datetime.now()).order_by('starting')}
+    return render(request,'contests/CF_Schedule.html',context)
 
-def scrape(request):
+def CF_scrape():
     url = 'https://codeforces.com/contests'
     res = requests.get(url)
     res.raise_for_status()
@@ -20,11 +20,11 @@ def scrape(request):
     # print(ContestList)
     for i in range(1,len(ContestList)):
         id = int(ContestList[i]['data-contestid'].strip())
-        print(id)
+        # print(id)
         contest_detail = ContestList[i].find_all('td')
         # print(contest_detail)
         name = contest_detail[0].text
-        print(name)
+        # print(name)
         writers = contest_detail[1].text
         start = contest_detail[2].text
 
@@ -36,13 +36,16 @@ def scrape(request):
         s= target_date_with_timezone
         k=s.replace(tzinfo=None)
 
-        print(k)
+        # print(k)
         length = contest_detail[3].text
-        obj, created = Contest.objects.get_or_create(contestId=id)
-        print(created)
+        obj, created = CF_Contest.objects.get_or_create(contestId=id)
+        # print(created)
         if created:
             obj.name = name
             obj.writers = writers
             obj.starting = k
             obj.length = length
         obj.save()
+
+def Contest(request):
+    return render(request,'contests/contest.html')
