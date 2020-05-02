@@ -11,5 +11,6 @@ class CF_Contest(models.Model):
 class CC_Contest(models.Model):
     contestCode = models.CharField(max_length=100)
     name = models.CharField(max_length=300)
+    contest_link = models.CharField(max_length=400)
     start = models.DateTimeField(null=True)
     end = models.DateTimeField(null=True)
