@@ -5,7 +5,17 @@ import datetime
 from django.utils import timezone
 import pytz
 from dateutil.parser import parse
+from selenium.webdriver import Firefox
+from selenium.webdriver.firefox.options import Options
+from requests_html import HTMLSession
+import re
+
 # Create your views here.
+
+def Contest(request):
+    return render(request,'contests/contest.html')
+
+
 def CF_Schedule(request):
     CF_scrape()
     context = {'object_list':CF_Contest.objects.filter(starting__gt=datetime.datetime.now()).order_by('starting')}
@@ -91,5 +101,64 @@ def CC_Scrape():
             obj.save()
     # print("-------------------")
 
-def Contest(request):
-    return render(request,'contests/contest.html')
+def leetcode_scrape():
+    pass
+    # url = "https://leetcode.com/contest/"
+    # rec  = requests.get(url)
+    # try:
+    #     rec.raise_for_status()
+    # except requests.exceptions.HTTPError as e:
+    #     print(e)
+    # soup = bs4.BeautifulSoup(rec.content,'html.parser')
+    # contest_card = soup.find_all(class_="contest-card-base")
+    # print(contest_card)
+    # print(contest_card[0].prettify())
+    # opts = Options()
+    # opts.headless = True
+    # driver = Firefox(options=opts)
+    # try:
+    #     driver.get('url')
+    # finally:
+    #     driver.quit()
+    #
+    # return
+def cf_scrape2(request):
+    session = HTMLSession()
+    r = session.get('https://codeforces.com/contests')
+
+    table = r.html.find('table')[0]
+
+    table_rows =table.find('tr')
+
+    table_headers = table_rows[0].find('th')
+
+    headers=[]
+    headers.append('Contest ID')
+
+    for th in table_headers:
+        headers.append(th.text)
+    headers.pop(len(headers)-1)
+    headers.pop(len(headers)-1)
+    headers.append("Registration Link")
+    table_rows.pop(0)
+
+    table_data =[]
+    for tr in table_rows:
+        d = []
+        # print(tr.attrs)
+        id = tr.attrs.get('data-contestid')
+        d.append(id)
+        table_td = tr.find('td')
+        for td in table_td:
+            d.append(td.text)
+        d.pop(len(d)-1)
+        d.pop(len(d)-1)
+        link = "https://codeforces.com/contestRegistration/"+id
+        a_tag = "<a href=\"{link}\" class=\"btn btn-success\">Register</a>".format(link=link)
+        d.append(a_tag)
+        table_data.append(d)
+    # print(headers)
+    # print(table_data)
+    r.close()
+    context = {'headers':headers,'table_data':table_data}
+    return render(request,'contests/cf_schedule2.html',context)
