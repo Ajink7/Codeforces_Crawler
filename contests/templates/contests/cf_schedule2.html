@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+  <br>
+  <div class="text-center">
+    <h1>Current or upcoming contests</h1>
+  </div>
+  <br>
+  <div class="table-responsive-lg">
+  <table class="table" style="width:100%;">
+    <thead class="bg-info">
+      <tr>
+        {% for header in headers%}
+        <th>{{header}}</th>
+        {%endfor%}
+      </tr>
+    </thead>
+    <tbody class="bg-light">
+      {%for t_row in table_data %}
+      <tr>
+        {% for t_data in t_row %}
+        <td>{{t_data | safe}}</td>
+        {%endfor%}
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+    </div>
+</div>
+
+{% endblock %}
