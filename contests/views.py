@@ -8,8 +8,6 @@ from dateutil.parser import parse
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from requests_html import HTMLSession
-import re
-
 # Create your views here.
 
 def Contest(request):
@@ -162,3 +160,11 @@ def cf_scrape2(request):
     r.close()
     context = {'headers':headers,'table_data':table_data}
     return render(request,'contests/cf_schedule2.html',context)
+
+
+def atcoder_scrape(request):
+    session = HTMLSession()
+    r = session.get('https://atcoder.jp/contests/')
+    tabel_html = r.html.find('#contest-table-upcoming')[0].html
+    print(tabel_html)
+    return render(request,'contests/atcoder_schedule.html',{'table_html':tabel_html})
