@@ -3,15 +3,15 @@
 
     <div class="container">
       <h1>Present Contests</h1>
-      <table>
-        <tr>
+      <table class="table">
+        <tr class="bg-info">
           <th>Code</th>
           <th>Name</th>
           <th>start</th>
           <th>end</th>
         </tr>
         {% for object in present_contest_list %}
-        <tr>
+        <tr class="bg-light">
           <td>{{object.contestCode}}</td>
           <td><a href='{{object.contest_link}}'>{{object.name}}</a></td>
           <td>{{object.start}} IST</td>
@@ -21,15 +21,15 @@
       </table>
       <br>
       <h2>Upcoming Contest!</h2>
-      <table>
-        <tr>
+      <table class="table">
+        <tr class="bg-info">
           <th>Code</th>
           <th>Name</th>
           <th>start</th>
           <th>end</th>
         </tr>
         {% for object in future_contest_list %}
-        <tr>
+        <tr class="bg-light">
           <td>{{object.contestCode}}</td>
           <td><a href='{{object.contest_link}}'>{{object.name}}</a></td>
           <td>{{object.start}} IST</td>

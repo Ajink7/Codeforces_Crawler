@@ -6,4 +6,5 @@ urlpatterns = [
     path('',views.Contest,name = 'contest'),
     path('CC_Schedule',views.CC_Schedule,name = 'CC_Schedule'),
     path('CF_Schedule2',views.cf_scrape2,name = 'CF_Schedule2'),
+    path('atcoder_schedule',views.atcoder_scrape,name="atcoder_schedule"),
 ]
