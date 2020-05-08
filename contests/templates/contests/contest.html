@@ -1,11 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<a href="{% url 'CF_Schedule' %}">Codeforces Schedule</a>
-<br>
-<a href="{% url 'CC_Schedule' %}">CodeChef Schedule</a>
-<br>
-<a href="{% url 'CF_Schedule2' %}">Codeforces Schedule using requests_html  </a>
-<br>
+
 <a href="{% url 'atcoder_schedule' %}">Atcoder Schedule</a>
 <br><br>
 <div class="container">
@@ -18,6 +13,7 @@
         <th>Duration</th>
         <th>Contest Name</th>
         <th>Contest Link</th>
+        <th>Platform</th>
       </tr>
     </thead>
     <tbody class="bg-light" id="contests-data">
