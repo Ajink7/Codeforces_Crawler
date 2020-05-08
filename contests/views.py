@@ -8,10 +8,100 @@ from dateutil.parser import parse
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from requests_html import HTMLSession
+from operator import itemgetter
 # Create your views here.
 
 def Contest(request):
-    return render(request,'contests/contest.html')
+    contests = cc_list()+ cf_list()
+    contests=sorted(contests, key=itemgetter(1))
+    return render(request,'contests/contest.html',{'contests':contests})
+# format for each list of contest:
+# [Contest ID/code,starting time,duration,Contest Name, Contest Link]
+# will sort by starting time
+
+
+def cf_list():
+    data_list =[]
+    url = 'https://codeforces.com/contests'
+    res = requests.get(url)
+    res.raise_for_status()
+    soup = bs4.BeautifulSoup(res.content,'html.parser')
+    ContestList = soup.select_one('table').find_all('tr')
+    for i in range(1,len(ContestList)):
+        id = ContestList[i]['data-contestid'].strip()
+        # print(id)
+        contest_detail = ContestList[i].find_all('td')
+        # print(contest_detail)
+        name = contest_detail[0].text
+        # print(name)
+        writers = contest_detail[1].text
+        start = contest_detail[2].text
+        # print(start)
+        source_date = parse(start)
+        source_time_zone = pytz.timezone('Europe/Moscow')
+        source_date_with_timezone = source_time_zone.localize(source_date)
+        target_time_zone = pytz.timezone('Asia/Kolkata')
+        target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
+        s= target_date_with_timezone
+        k=s.replace(tzinfo=None)
+
+        # print(k)
+        length = contest_detail[3].text
+        d = []
+        d.append(id)
+        d.append(k)
+        d.append(length)
+        d.append(name)
+        link = "https://codeforces.com/contestRegistration/"+id
+        link = "<a href=\"{link}\" class=\"btn btn-success\">Register</a>".format(link=link)
+        d.append(link)
+        data_list.append(d)
+    return data_list
+
+def cc_list():
+    url = 'https://www.codechef.com/contests'
+    res = requests.get(url)
+    res.raise_for_status()
+
+    soup = bs4.BeautifulSoup(res.content,'html.parser')
+
+    tableList = soup.find_all('table',{'class':'dataTable'})
+    # print(len(tableList))
+
+    # print(tableList[0].find_all('tr')[1].find_all('td'))
+    # print('present contests')
+
+    for j in range(0,2):
+        data_list =[]
+        ContestList = tableList[j].find_all('tr')
+        for i in range (1,len(ContestList)):
+            contest_detail = ContestList[i].find_all('td')
+            code = contest_detail[0].text.strip()
+            name = contest_detail[1].find('a').text.strip()
+            contestLink = contest_detail[1].find('a').get('href').strip()
+            start = parse(contest_detail[2].get('data-starttime'))
+            end = parse(contest_detail[3].get('data-endtime'))
+            start = start.replace(tzinfo=None)
+            end = end.replace(tzinfo=None)
+            contestLink = "https://codechef.com"+contestLink
+            contestLink = "<a href=\"{link}\" class=\"btn btn-success\">Register</a>".format(link=contestLink)
+
+            # # print(Code)
+            # print(name)
+            # print(start)
+            # print(end)
+            # print(end-start)
+            # print("...................")
+            d = []
+            d.append(code)
+            d.append(start)
+            d.append(end-start)
+            d.append(name)
+            d.append(contestLink)
+            data_list.append(d)
+    print(data_list)
+    return data_list
+
 
 
 def CF_Schedule(request):
@@ -41,7 +131,7 @@ def CF_scrape():
         # print(name)
         writers = contest_detail[1].text
         start = contest_detail[2].text
-
+        # print(start)
         source_date = parse(start)
         source_time_zone = pytz.timezone('Europe/Moscow')
         source_date_with_timezone = source_time_zone.localize(source_date)
