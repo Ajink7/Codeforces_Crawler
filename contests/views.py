@@ -21,6 +21,22 @@ def Contest(request):
 # [Contest ID/code,starting time,duration,Contest Name, Contest Link]
 # will sort by starting time
 
+def ajax_filter(request):
+    data = dict()
+    if request.is_ajax() and request.method=='GET':
+        cc = request.GET.get('cc')
+        cf  =request.GET.get('cf')
+        contests = Contests.objects.all()
+        # TODO: get valid contests only 
+        if(cc=="false"):
+            contests = contests.exclude(platform="codechef")
+        if(cf=="false"):
+            contests = contests.exclude(platform="codeforces")
+        data['success']=True
+        data['html_contests_data'] = render_to_string('contests/partial_contests.html',{'contests':contests})
+    return JsonResponse(data)
+
+    pass
 def ajax_update_contests(request):
     data = dict()
     if request.is_ajax() and request.method=='GET':
