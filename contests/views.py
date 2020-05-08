@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import CF_Contest,CC_Contest
+from .models import CF_Contest,CC_Contest,Contests
 import webbrowser,bs4,sys,requests
 import datetime
 from django.utils import timezone
@@ -9,15 +9,35 @@ from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from requests_html import HTMLSession
 from operator import itemgetter
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+
 # Create your views here.
 
 def Contest(request):
-    contests = cc_list()+ cf_list()
-    contests=sorted(contests, key=itemgetter(1))
+    contests = Contests.objects.all().order_by('starting')
     return render(request,'contests/contest.html',{'contests':contests})
 # format for each list of contest:
 # [Contest ID/code,starting time,duration,Contest Name, Contest Link]
 # will sort by starting time
+
+def ajax_update_contests(request):
+    data = dict()
+    if request.is_ajax() and request.method=='GET':
+        # print("got an ajax request...")
+        # print("cleaning database...")
+        Contests.objects.all().delete()
+        # print("database cleaned!")
+        # print("scraping cf... ")
+        CF_scrape();
+        # print("scraping cc...")
+        CC_Scrape();
+        # print("scraping done!")
+        contests = Contests.objects.all().order_by('starting')
+        data['html_contests_data'] = render_to_string('contests/partial_contests.html',{'contests':contests})
+        data['success']=True
+    # print("returning json response....")
+    return JsonResponse(data)
 
 
 def cf_list():
@@ -123,7 +143,7 @@ def CF_scrape():
     ContestList = soup.select_one('table').find_all('tr')
     # print(ContestList)
     for i in range(1,len(ContestList)):
-        id = int(ContestList[i]['data-contestid'].strip())
+        id = ContestList[i]['data-contestid'].strip()
         # print(id)
         contest_detail = ContestList[i].find_all('td')
         # print(contest_detail)
@@ -139,16 +159,17 @@ def CF_scrape():
         target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
         s= target_date_with_timezone
         k=s.replace(tzinfo=None)
+        link = "https://codeforces.com/contestRegistration/"+id
 
         # print(k)
         length = contest_detail[3].text
-        obj, created = CF_Contest.objects.get_or_create(contestId=id)
+        obj, created = Contests.objects.get_or_create(code=id)
         # print(created)
         if created:
             obj.name = name
-            obj.writers = writers
+            obj.link = link
             obj.starting = k
-            obj.length = length
+            obj.duration = length
         obj.save()
 def CC_Scrape():
     url = 'https://www.codechef.com/contests'
@@ -158,7 +179,7 @@ def CC_Scrape():
     soup = bs4.BeautifulSoup(res.content,'html.parser')
 
     tableList = soup.find_all('table',{'class':'dataTable'})
-    print(len(tableList))
+    # print(len(tableList))
 
     # print(tableList[0].find_all('tr')[1].find_all('td'))
     # print('present contests')
@@ -179,13 +200,13 @@ def CC_Scrape():
             # print(Name)
             # print(start)
             # print(end)
-            obj, created = CC_Contest.objects.get_or_create(contestCode=code)
+            obj, created = Contests.objects.get_or_create(code=code)
             if created:
-                obj.contestCode = code
+                obj.code = code
                 obj.name = name
-                obj.contest_link =contestLink
-                obj.start = start
-                obj.end = end
+                obj.link =contestLink
+                obj.starting = start
+                obj.duration = end-start
             obj.save()
     # print("-------------------")
 

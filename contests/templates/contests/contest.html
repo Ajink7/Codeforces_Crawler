@@ -20,16 +20,35 @@
         <th>Contest Link</th>
       </tr>
     </thead>
-    <tbody class="bg-light">
-      {% for contest in contests%}
-      <tr>
-        {% for c_data in contest%}
-        <td>{{c_data|safe}}</td>
-        {%endfor%}
-      </tr>
-      {%endfor%}
+    <tbody class="bg-light" id="contests-data">
+      {% include "contests/partial_contests.html" %}
     </tbody>
   </table>
 
 </div>
+
+<script>
+
+$(document).ready(function() {
+    // alert("updating database");
+     $.ajax({
+       url: '/contests/ajax_update',
+       type: 'GET',
+       dataType: 'json',
+       success: function(data)
+       {
+         if(data.success)
+         {
+           $('#contests-data').html(data.html_contests_data);
+           // console.log("data updated successfully!");
+           // alert("database updated successfully!");
+         }
+         else {
+           console.log("error");
+         }
+       }
+     });
+});
+
+</script>
 {% endblock %}
