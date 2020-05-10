@@ -11,3 +11,6 @@ class Contests(models.Model):
     link = models.CharField(max_length=264,blank=True)
     platform= models.CharField(max_length=264,blank=True)
     ending = models.DateTimeField(null=True,blank=True)
+
+    def __str__(self):
+        return self.name
