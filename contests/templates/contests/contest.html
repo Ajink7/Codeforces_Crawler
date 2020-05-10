@@ -10,18 +10,18 @@
   <!-- class="form-check" to ensure proper margins for labels and checkboxes. -->
 <div class="col-2 form-check">
   <label class="">
-    <input type="checkbox" id ="codeforces_filter"value="">Codeforces
+    <input type="checkbox" id ="codeforces_filter"value="" checked>Codeforces
   </label>
 </div>
 
 <div class="col-2 form-check">
   <label class="">
-    <input type="checkbox" id="codechef_filter" value="">Codechef
+    <input type="checkbox" id="codechef_filter" value="" checked>Codechef
   </label>
 </div>
 <div class="col-2 form-check">
   <label class="">
-    <input type="checkbox" id="atcoder_filter" value="">Atcoder
+    <input type="checkbox" id="atcoder_filter" value="" checked>Atcoder
   </label>
 </div>
 </div>
@@ -57,9 +57,10 @@ $(document).ready(function() {
        {
          if(data.success)
          {
-           $('#contests-data').html(data.html_contests_data);
+           // $('#contests-data').html(data.html_contests_data);
            // console.log("data updated successfully!");
            // alert("database updated successfully!");
+           ajax_filter();
          }
          else {
            console.log("error");

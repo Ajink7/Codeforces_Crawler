@@ -56,8 +56,8 @@ def ajax_update_contests(request):
         # print scraping atcoder
         atcoder_scrape();
         # print("scraping done!")
-        contests =Contests.objects.filter(Q(code__in=id_list)|Q(platform='codechef',starting__gt=datetime.datetime.now())|Q(ending__gt=datetime.datetime.now(),platform='codechef')|Q(platform='atcoder')).order_by('starting')
-        data['html_contests_data'] = render_to_string('contests/partial_contests.html',{'contests':contests})
+        # contests =Contests.objects.filter(Q(code__in=id_list)|Q(platform='codechef',starting__gt=datetime.datetime.now())|Q(ending__gt=datetime.datetime.now(),platform='codechef')|Q(platform='atcoder')).order_by('starting')
+        # data['html_contests_data'] = render_to_string('contests/partial_contests.html',{'contests':contests})
         data['success']=True
     # print("returning json response....")
     return JsonResponse(data)
