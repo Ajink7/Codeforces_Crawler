@@ -208,7 +208,7 @@ def atcoder_scrape():
 
         #  Atcoder localize the time itself
         source_date = parse(starting)
-        source_time_zone = pytz.timezone('Asia/Kolkata')
+        source_time_zone = pytz.timezone('Asia/Tokyo')
         source_date_with_timezone = source_time_zone.localize(source_date)
         target_time_zone = pytz.timezone('Asia/Kolkata')
         target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
