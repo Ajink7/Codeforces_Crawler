@@ -26,12 +26,15 @@ def ajax_filter(request):
     if request.is_ajax() and request.method=='GET':
         cc = request.GET.get('cc')
         cf  =request.GET.get('cf')
-        contests = Contests.objects.all()
-        # TODO: get valid contests only 
+        ac = request.GET.get('ac')
+        contests = Contests.objects.all().filter(Q(starting__gt=datetime.datetime.now())|Q(ending__gt=datetime.datetime.now(),platform='codechef')).order_by('starting')
+        # TODO: get valid contests only
         if(cc=="false"):
             contests = contests.exclude(platform="codechef")
         if(cf=="false"):
             contests = contests.exclude(platform="codeforces")
+        if(ac=="false"):
+            contests = contests.exclude(platform="atcoder")
         data['success']=True
         data['html_contests_data'] = render_to_string('contests/partial_contests.html',{'contests':contests})
     return JsonResponse(data)
@@ -41,15 +44,19 @@ def ajax_update_contests(request):
     data = dict()
     if request.is_ajax() and request.method=='GET':
         # print("got an ajax request...")
-        # print("cleaning database...")
-
-        # print("database cleaned!")
         # print("scraping cf... ")
         id_list =CF_scrape();
         # print("scraping cc...")
         CC_Scrape();
+        if not id_list:
+            pass
+        else:
+            print(' '.join(id_list))
+            Contests.objects.filter(Q(platform='codeforces')).exclude(code__in=id_list).delete()
+        # print scraping atcoder
+        atcoder_scrape();
         # print("scraping done!")
-        contests =Contests.objects.filter(Q(code__in=id_list)|Q(platform='codechef',starting__gt=datetime.datetime.now())|Q(ending__gt=datetime.datetime.now(),platform='codechef')).order_by('starting')
+        contests =Contests.objects.filter(Q(code__in=id_list)|Q(platform='codechef',starting__gt=datetime.datetime.now())|Q(ending__gt=datetime.datetime.now(),platform='codechef')|Q(platform='atcoder')).order_by('starting')
         data['html_contests_data'] = render_to_string('contests/partial_contests.html',{'contests':contests})
         data['success']=True
     # print("returning json response....")
@@ -58,7 +65,7 @@ def ajax_update_contests(request):
 
 def CF_scrape():
     id_list =[]
-    url = 'https://codeforces.com/contests'
+    url = 'https://codeforces.com/contests?complete=true'
     res = requests.get(url)
     res.raise_for_status()
     soup = bs4.BeautifulSoup(res.content,'html.parser')
@@ -160,9 +167,74 @@ def leetcode_scrape():
     # return
 
 
-def atcoder_scrape(request):
+def atcoder_scrape():
     session = HTMLSession()
+
+    # get the html of the contests page
     r = session.get('https://atcoder.jp/contests/')
-    tabel_html = r.html.find('#contest-table-upcoming')[0].html
-    print(tabel_html)
-    return render(request,'contests/atcoder_schedule.html',{'table_html':tabel_html})
+
+    # current contests
+    tc = r.html.find('#contest-table-action')
+    if(len(tc)!=0):
+        tc = tc[0]
+        tc_table = tc.find('tbody')[0]
+        current_contests = tc_table.find('tr')
+    else:
+        current_contests = []
+        # if there is no current contest then atcoder don't have this table
+
+    # Future contests
+    tf = r.html.find('#contest-table-upcoming')
+    if(len(tf)!=0):
+        tf = tf[0]
+        tf_table = tf.find('tbody')[0]
+        future_contest = tf_table.find('tr')
+    else:
+        future_contest=[]
+
+    #  sum
+    contests = current_contests+future_contest
+
+    for contest in contests:
+        td = contest.find('td')
+        starting = td[0].text
+        starting = starting[:len(starting)-5]
+        name = td[1].find('a')[0].text
+        code = td[1].find('a')[0].attrs['href']
+        link = "https://atcoder.jp"+code
+        code = code[10:]
+        duration = td[2].text
+        rated_range = td[3].text
+
+        #  Atcoder localize the time itself
+        source_date = parse(starting)
+        source_time_zone = pytz.timezone('Asia/Kolkata')
+        source_date_with_timezone = source_time_zone.localize(source_date)
+        target_time_zone = pytz.timezone('Asia/Kolkata')
+        target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
+        s= target_date_with_timezone
+        k=s.replace(tzinfo=None)
+
+
+        print(code)
+        print(link)
+        print(starting)
+        print(name)
+        print(duration)
+        print(rated_range)
+        print("-------------")
+
+         # creating/updating new contest
+        obj, created = Contests.objects.get_or_create(code=code)
+        if created:
+            obj.code = code
+            obj.name = name
+            obj.link = link
+            obj.starting = k
+            obj.duration = duration
+            obj.platform = "atcoder"
+        obj.save()
+
+    # tabel_html = r.html.find('#contest-table-upcoming')[0].html
+    # print(tabel_html)
+    # return render(request,'contests/atcoder_schedule.html',{'table_html':tabel_html})
