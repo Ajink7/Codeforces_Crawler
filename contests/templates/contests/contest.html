@@ -19,6 +19,11 @@
     <input type="checkbox" id="codechef_filter" value="">Codechef
   </label>
 </div>
+<div class="col-2 form-check">
+  <label class="">
+    <input type="checkbox" id="atcoder_filter" value="">Atcoder
+  </label>
+</div>
 </div>
 
   <table class="table">
@@ -66,12 +71,12 @@ $(document).ready(function() {
      {
        var cf = document.getElementById("codeforces_filter").checked;
        var cc = document.getElementById("codechef_filter").checked;
-
+       var ac = document.getElementById("atcoder_filter").checked;
        $.ajax(
        {
          url:'/contests/ajax/data_filter',
          type: 'GET',
-         data:{'cf':cf,'cc':cc},
+         data:{'cf':cf,'cc':cc,'ac':ac},
          dataType:'json',
          success: function(data)
          {
@@ -92,6 +97,7 @@ $(document).ready(function() {
 
      $('#codeforces_filter').on('change',ajax_filter);
      $('#codechef_filter').on('change',ajax_filter);
+     $('#atcoder_filter').on('change',ajax_filter);
 
 
 });
