@@ -23,6 +23,11 @@
     <input type="checkbox" id="atcoder_filter" value="" checked>Atcoder
   </label>
 </div>
+<div class="col-2 form-check">
+  <label class="">
+    <input type="checkbox" id="leetcode_filter" value="" checked>Leetcode
+  </label>
+</div>
 </div>
 
   <table class="table">
@@ -72,11 +77,12 @@ $(document).ready(function() {
        var cf = document.getElementById("codeforces_filter").checked;
        var cc = document.getElementById("codechef_filter").checked;
        var ac = document.getElementById("atcoder_filter").checked;
+       var lc = document.getElementById("leetcode_filter").checked;
        $.ajax(
        {
          url:'/contests/ajax/data_filter',
          type: 'GET',
-         data:{'cf':cf,'cc':cc,'ac':ac},
+         data:{'cf':cf,'cc':cc,'ac':ac,'lc':lc},
          dataType:'json',
          success: function(data)
          {
@@ -98,6 +104,7 @@ $(document).ready(function() {
      $('#codeforces_filter').on('change',ajax_filter);
      $('#codechef_filter').on('change',ajax_filter);
      $('#atcoder_filter').on('change',ajax_filter);
+     $('#leetcode_filter').on('change',ajax_filter);
 
 
 });
