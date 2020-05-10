@@ -55,7 +55,10 @@ def ajax_update_contests(request):
             Contests.objects.filter(Q(platform='codeforces')).exclude(code__in=id_list).delete()
         # print scraping atcoder
         atcoder_scrape();
-        # print("scraping done!")
+        #updating leetcode contest
+        leetcode_update()
+
+        # # print("scraping done!")
         # contests =Contests.objects.filter(Q(code__in=id_list)|Q(platform='codechef',starting__gt=datetime.datetime.now())|Q(ending__gt=datetime.datetime.now(),platform='codechef')|Q(platform='atcoder')).order_by('starting')
         # data['html_contests_data'] = render_to_string('contests/partial_contests.html',{'contests':contests})
         data['success']=True
@@ -215,14 +218,14 @@ def atcoder_scrape():
         s= target_date_with_timezone
         k=s.replace(tzinfo=None)
 
-
-        print(code)
-        print(link)
-        print(starting)
-        print(name)
-        print(duration)
-        print(rated_range)
-        print("-------------")
+        #
+        # print(code)
+        # print(link)
+        # print(starting)
+        # print(name)
+        # print(duration)
+        # print(rated_range)
+        # print("-------------")
 
          # creating/updating new contest
         obj, created = Contests.objects.get_or_create(code=code)
@@ -238,3 +241,40 @@ def atcoder_scrape():
     # tabel_html = r.html.find('#contest-table-upcoming')[0].html
     # print(tabel_html)
     # return render(request,'contests/atcoder_schedule.html',{'table_html':tabel_html})
+def leetcode_update():
+    #updating biweekly
+    a = Contests.objects.get(platform='leetcode',code__startswith='BWC')
+    a.starting = a.starting.replace(tzinfo=None)
+    if a.starting < datetime.datetime.now():
+
+        source_time_zone = pytz.timezone('UTC')
+        source_date_with_timezone = source_time_zone.localize(a.starting)
+        target_time_zone = pytz.timezone('Asia/Kolkata')
+        target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
+        a.starting = target_date_with_timezone+ datetime.timedelta(days=14)
+        a.starting = a.starting.replace(tzinfo=None)
+        no = int(a.code[3:])
+        no=no+1;
+        a.code = "BWC"+str(no)
+        a.name = "Biweekly Contest "+str(no)
+        a.link = "https://leetcode.com/contest/biweekly-contest-"+str(no)
+        # a.code = BWC+
+        a.save()
+
+    #updating weekly
+    a = Contests.objects.get(platform='leetcode',code__startswith='WC')
+    a.starting = a.starting.replace(tzinfo=None)
+    if a.starting < datetime.datetime.now():
+
+        source_time_zone = pytz.timezone('UTC')
+        source_date_with_timezone = source_time_zone.localize(a.starting)
+        target_time_zone = pytz.timezone('Asia/Kolkata')
+        target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
+        a.starting = target_date_with_timezone+ datetime.timedelta(days=7)
+        a.starting = a.starting.replace(tzinfo=None)
+        no = int(a.code[2:])
+        no=no+1;
+        a.code = "WC"+str(no)
+        a.name = "Weekly Contest "+str(no)
+        a.link ="https://leetcode.com/contest/weekly-contest-"+str(no)
+        a.save()
