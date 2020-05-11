@@ -21,4 +21,13 @@ urlpatterns = [
     path('',IndexView.as_view(),name = 'index'),
     path('accounts/',include('accounts.urls')),
     path('contests/',include('contests.urls')),
+
+
+
+
+    # Note that you do not necessarily need the URLs provided by django.contrib.auth.urls.
+    # Instead of the URLs login, logout, and password_change (among others),
+    # you can use the URLs provided by allauth: account_login, account_logout, account_set_password…
+    path('accounts/', include('allauth.urls')),
+
 ]
