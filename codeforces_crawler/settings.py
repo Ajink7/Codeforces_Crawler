@@ -141,9 +141,20 @@ SOCIALACCOUNT_PROVIDERS = {
             'secret': 'WZam29QxCGZU31u7vk-hS9gF',
             # 'key': ''
         }
+    },
+    'github': {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        'APP': {
+            'client_id': 'e2735e6fbd3dd41493c6',
+            'secret': '178abada79a778b4823234781206b502a6774d9c',
+            # 'key': ''
+        }
     }
+
 }
-SITE_ID=[1,2,3]
+SITE_IDS=[1,2,3]
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -151,13 +162,14 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Kolkata'
 
-USE_I18N = False
+USE_I18N = True
 
-USE_L10N = False
+USE_L10N = True
 
 USE_TZ = True
 
-
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
