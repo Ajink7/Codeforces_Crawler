@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'contests',
     'accounts',
     'bootstrap4',
+    'friendship',
 
 
     # for allauth
