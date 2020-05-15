@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content %}
+<br>
+
+<div class="container">
+
+<!-- Filter options -->
+<div class="row">
+  <!-- class="form-check" to ensure proper margins for labels and checkboxes. -->
+<div class="col-2 form-check">
+  <label class="">
+    <input type="checkbox" id ="codeforces_filter"value="" checked>Codeforces
+  </label>
+</div>
+
+<div class="col-2 form-check">
+  <label class="">
+    <input type="checkbox" id="codechef_filter" value="" checked>Codechef
+  </label>
+</div>
+<div class="col-2 form-check">
+  <label class="">
+    <input type="checkbox" id="atcoder_filter" value="" checked>Atcoder
+  </label>
+</div>
+<div class="col-2 form-check">
+  <label class="">
+    <input type="checkbox" id="leetcode_filter" value="" checked>Leetcode
+  </label>
+</div>
+</div>
+
+  <table class="table">
+    <thead class="bg-info">
+      <tr>
+        <th>Contest ID</th>
+        <th>Starting at</th>
+        <th>Duration</th>
+        <th>Contest Name</th>
+        <th>Contest Link</th>
+        <th>Platform</th>
+      </tr>
+    </thead>
+
+    <tbody class="bg-light" id="contests-data">
+      {% include "contests/partial_contests.html" %}
+    </tbody>
+  </table>
+
+</div>
+
+<script>
+
+$(document).ready(function() {
+    // alert("updating database");
+     $.ajax({
+       url: '/contests/ajax_update',
+       type: 'GET',
+       dataType: 'json',
+       success: function(data)
+       {
+         if(data.success)
+         {
+           // $('#contests-data').html(data.html_contests_data);
+           // console.log("data updated successfully!");
+           // alert("database updated successfully!");
+           ajax_filter();
+         }
+         else {
+           console.log("error");
+         }
+       }
+     });
+
+     var ajax_filter = function()
+     {
+       var cf = document.getElementById("codeforces_filter").checked;
+       var cc = document.getElementById("codechef_filter").checked;
+       var ac = document.getElementById("atcoder_filter").checked;
+       var lc = document.getElementById("leetcode_filter").checked;
+       $.ajax(
+       {
+         url:'/contests/ajax/data_filter',
+         type: 'GET',
+         data:{'cf':cf,'cc':cc,'ac':ac,'lc':lc},
+         dataType:'json',
+         success: function(data)
+         {
+           if(data.success)
+           {
+             $('#contests-data').html(data.html_contests_data);
+             // console.log("data updated successfully!");
+             // alert("database updated successfully!");
+           }
+           else {
+             console.log("error");
+           }
+         }
+
+       }
+     );
+     }
+
+     $('#codeforces_filter').on('change',ajax_filter);
+     $('#codechef_filter').on('change',ajax_filter);
+     $('#atcoder_filter').on('change',ajax_filter);
+     $('#leetcode_filter').on('change',ajax_filter);
+
+
+});
+
+</script>
+{% endblock %}

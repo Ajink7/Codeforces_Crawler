@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+
+  {{table_html|safe}}
+
+</div>
+
+<script>
+
+//  function to get absolute url of contest urls
+  var get_absolute_links = function()
+  {
+    var links = $('#contest-table-upcoming a')
+    for(var i=0;i<links.length;i++)
+    {
+      link = links[i].getAttribute('href')
+      if(link.substring(0,(Math.min(link.length-1,4)))!="http")
+      {
+        link = "https://atcoder.jp"+link;
+        $('#contest-table-upcoming a').eq(i).attr('href',link);
+      }
+
+    }
+  }
+  get_absolute_links();
+</script>
+{% endblock %}

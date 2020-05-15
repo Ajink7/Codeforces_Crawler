@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% block content %}
+{% load socialaccount %}
+  <br>
+  <br>
+  <h1>Login!</h1>
+
+
+    <form  method="post">
+          {% csrf_token %}
+          {% bootstrap_form  form %}
+          <input type="submit" class='btn btn-primary'  value="Login">
+    </form>
+    <br>
+    <a href="{% provider_login_url 'github' %}">Login with Github</a>
+    <br>
+    <a href="{% provider_login_url 'google' %}">Login with Google</a>
+
+
+{% endblock %}
