@@ -60,6 +60,7 @@ def get_profile(request,username):
     return render(request,'accounts/profile.html',context)
 
 
+
 class CreateProfileView(LoginRequiredMixin,generic.UpdateView):
     model = UserProfile
     form_class = UserProfileCreateForm
