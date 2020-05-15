@@ -5,10 +5,10 @@
   	<div class="container">
   		<div class="row">
   			<div class="col-md-12 col-sm-12">
-
-          <img src="{{user.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
-
-
+          {% if user.profile.profile_picture %}
+            <img src="{{user.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
+          {% endif %}
+            
 
   				<h1 class="tm-title bold shadow">UserName:{{user.username}}</h1>
 
