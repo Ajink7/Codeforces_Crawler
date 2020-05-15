@@ -81,7 +81,9 @@ class UpdateProfileView(LoginRequiredMixin,generic.UpdateView):
     model = UserProfile
     form_class = UserProfileCreateForm
     template_name = 'accounts/update_profile.html'
-    success_url = reverse_lazy('profile')
+    def get_success_url(self):
+        return reverse_lazy('profile', kwargs={'username': self.request.user.username,})
+    # success_url = reverse_lazy('profile',kwargs={'username':get_object()})
     # def form_valid(self,form):
     #     form.save()
     #     self.request.user.username  = self.request.POST['username']

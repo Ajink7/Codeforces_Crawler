@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
+<div class="container" id ="profile_head">
   <header>
   	<div class="container">
   		<div class="row">
@@ -16,6 +16,7 @@
   		</div>
   	</div>
   </header>
+  </div>
   <br>
   {% if not visitor%}
   <a href="{% url 'update_profile' %}">Update Profile</a>
@@ -24,12 +25,24 @@
   <p>Work:{{user_profile.profile.work}}</p>
   <p>Education:{{user_profile.profile.education}}</p>
   <p>Skills:{{user_profile.profile.skills}}</p>
-  <ol>
-    Friends:
-    {% for friend in friend_list%}
-     <li>friend.username</li>
-     {%endfor%}
-  </ol>
+  <div class="">
+
+    <p>Friends:</p>
+    <ol>
+      {% for friend in friend_list%}
+       <li>{{friend.username}}</li>
+       {%endfor%}
+    </ol>
+
+  </div>
+  <div class="">
+    <p>Friend Requests ({{friend_requests_count}})</p>
+    <ol>
+      {% for friend in friend_requests %}
+      <li>{{friend.username}}</li>
+      {%endfor%}
+    </ol>
+  </div>
 
   {%else%}
 
@@ -40,13 +53,13 @@
   <p>Skills:{{user_profile.profile.skills}}</p>
 
   {%endif%}
-</div>
+
 <style >
   img{
     max-height: 200px;
     max-width: 100%;
   }
-  body{
+  #profile_head{
     text-align: center;
   }
 
