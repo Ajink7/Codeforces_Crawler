@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="container">
+      <h1>Present Contests</h1>
+      <table class="table">
+        <tr class="bg-info">
+          <th>Code</th>
+          <th>Name</th>
+          <th>start</th>
+          <th>end</th>
+        </tr>
+        {% for object in present_contest_list %}
+        <tr class="bg-light">
+          <td>{{object.contestCode}}</td>
+          <td><a href='{{object.contest_link}}'>{{object.name}}</a></td>
+          <td>{{object.start}} IST</td>
+          <td>{{object.end}} IST</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <br>
+      <h2>Upcoming Contest!</h2>
+      <table class="table">
+        <tr class="bg-info">
+          <th>Code</th>
+          <th>Name</th>
+          <th>start</th>
+          <th>end</th>
+        </tr>
+        {% for object in future_contest_list %}
+        <tr class="bg-light">
+          <td>{{object.contestCode}}</td>
+          <td><a href='{{object.contest_link}}'>{{object.name}}</a></td>
+          <td>{{object.start}} IST</td>
+          <td>{{object.end}} IST</td>
+        </tr>
+        {% endfor %}
+      </table>
+
+
+    </div>
+
+
+{% endblock %}
