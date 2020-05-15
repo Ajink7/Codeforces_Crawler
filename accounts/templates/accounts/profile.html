@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <header>
+  	<div class="container">
+  		<div class="row">
+  			<div class="col-md-12 col-sm-12">
+          {% if user.profile.profile_picture %}
+            <img src="{{user.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
+          {% endif %}
+            
+
+  				<h1 class="tm-title bold shadow">UserName:{{user.username}}</h1>
+
+  			</div>
+  		</div>
+  	</div>
+  </header>
+  <br>
+  <a href="{% url 'update_profile' %}">Update Profile</a>
+  <p>Name :{{user.first_name}} {{user.last_name}}</p>
+  <p>Location:{{user.profile.location}}</p>
+  <p>Work:{{user.profile.work}}</p>
+  <p>Education:{{user.profile.education}}</p>
+  <p>Skills:{{user.profile.skills}}</p>
+</div>
+<style >
+  img{
+    max-height: 200px;
+    max-width: 100%;
+  }
+  body{
+    text-align: center;
+  }
+
+</style>
+
+{% endblock %}
