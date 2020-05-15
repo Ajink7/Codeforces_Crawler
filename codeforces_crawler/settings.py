@@ -37,9 +37,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'contests',
     'accounts',
     'bootstrap4',
+
+
+    # for allauth
+    #  documentation https://django-allauth.readthedocs.io/en/latest/
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # allauth providers, to add more visit https://django-allauth.readthedocs.io/en/latest/installation.html
+
+
+    'allauth.socialaccount.providers.github',
+
+    # A tutorial to setup google auth easily https://medium.com/@whizzoe/in-5-mins-set-up-google-login-to-sign-up-users-on-django-e71d5c38f5d5
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.microsoft',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +81,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -102,7 +120,53 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
 
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+
+)
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': '276744597722-2kk79rnfbmhnfdnr7q9007sdk7mnehs2.apps.googleusercontent.com',
+            'secret': 'WZam29QxCGZU31u7vk-hS9gF',
+            # 'key': ''
+        }
+    },
+    'github': {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        'SCOPE': [
+                    'read:user',
+                    # 'repo',
+                    # 'read:org',
+                ],
+        'APP': {
+            'client_id': 'e2735e6fbd3dd41493c6',
+            'secret': '178abada79a778b4823234781206b502a6774d9c',
+            # 'key': ''
+        }
+    }
+
+}
+SITE_IDS=[1,2,3]
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -115,9 +179,30 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
+#
+# SOCIALACCOUNT_FORMS = {
+#     'signup': 'accounts.forms.MySignupForm'
+# }
+SOCIALACCOUNT_AUTO_SIGNUP = True
+# ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.MySignupForm'
+LOGIN_REDIRECT_URL = '/'
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+LOGOUT_REDIRECT_URL = '/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATICFILES_FINDERS = [
+    # searches in STATICFILES_DIRS
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    # searches in STATIC subfolder of each app
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

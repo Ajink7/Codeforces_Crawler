@@ -1,0 +1,10 @@
+{%for contest in contests%}
+<tr>
+ <td>{{contest.code}}</td>
+ <td>{{contest.starting}}</td>
+ <td>{{contest.duration}}</td>
+ <td>{{contest.name}}</td>
+ <td> <a class="btn btn-info" href="{{contest.link}}">Click Here</a> </td>
+ <td>{{contest.platform}}</td>
+</tr>
+{%endfor%}

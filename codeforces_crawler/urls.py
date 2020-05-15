@@ -16,9 +16,28 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from .views import IndexView
+
+from . import views, settings
+from django.contrib.staticfiles.urls import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',IndexView.as_view(),name = 'index'),
+    path('',IndexView,name = 'index'),
     path('accounts/',include('accounts.urls')),
     path('contests/',include('contests.urls')),
+
+
+
+
+    # Note that you do not necessarily need the URLs provided by django.contrib.auth.urls.
+    # Instead of the URLs login, logout, and password_change (among others),
+    # you can use the URLs provided by allauth: account_login, account_logout, account_set_password…
+    path('accounts/', include('allauth.urls')),
+
 ]
+urlpatterns += staticfiles_urlpatterns()
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
