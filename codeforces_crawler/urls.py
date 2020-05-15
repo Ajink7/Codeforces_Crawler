@@ -29,7 +29,7 @@ urlpatterns = [
     path('',IndexView,name = 'index'),
     path('accounts/',include('accounts.urls')),
     path('contests/',include('contests.urls')),
-
+    path('friendship/', include('friendship.urls')),
 
 
 
