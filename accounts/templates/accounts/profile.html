@@ -6,23 +6,40 @@
   		<div class="row">
   			<div class="col-md-12 col-sm-12">
 
-          <img src="{{user.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
+          <img src="{{user_profile.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
 
 
 
-  				<h1 class="tm-title bold shadow">UserName:{{user.username}}</h1>
+  				<h1 class="tm-title bold shadow">UserName:{{user_profile.username}}</h1>
 
   			</div>
   		</div>
   	</div>
   </header>
   <br>
+  {% if not visitor%}
   <a href="{% url 'update_profile' %}">Update Profile</a>
-  <p>Name :{{user.first_name}} {{user.last_name}}</p>
-  <p>Location:{{user.profile.location}}</p>
-  <p>Work:{{user.profile.work}}</p>
-  <p>Education:{{user.profile.education}}</p>
-  <p>Skills:{{user.profile.skills}}</p>
+  <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
+  <p>Location:{{user_profile.profile.location}}</p>
+  <p>Work:{{user_profile.profile.work}}</p>
+  <p>Education:{{user_profile.profile.education}}</p>
+  <p>Skills:{{user_profile.profile.skills}}</p>
+  <ol>
+    Friends:
+    {% for friend in friend_list%}
+     <li>friend.username</li>
+     {%endfor%}
+  </ol>
+
+  {%else%}
+
+  <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
+  <p>Location:{{user_profile.profile.location}}</p>
+  <p>Work:{{user_profile.profile.work}}</p>
+  <p>Education:{{user_profile.profile.education}}</p>
+  <p>Skills:{{user_profile.profile.skills}}</p>
+
+  {%endif%}
 </div>
 <style >
   img{
