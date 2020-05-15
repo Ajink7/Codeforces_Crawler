@@ -14,7 +14,7 @@ class SignUpView(generic.CreateView):
 
 
 
-class ProfileView(LoginRequiredMixin,generic.TemplateView):
+class ProfileView(generic.TemplateView):
 
     template_name = 'accounts/profile.html'
 
