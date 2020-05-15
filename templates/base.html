@@ -28,7 +28,7 @@
     {% if user.is_authenticated %}
     <li class="nav-item">
       <span class="navbar-text">
-        Welcome:{{user.username}}
+        <a href="{% url 'profile' %}">Welcome:{{user.username}}</a>
     </span>
     </li>
 

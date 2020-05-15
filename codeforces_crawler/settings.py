@@ -179,8 +179,17 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
+#
+# SOCIALACCOUNT_FORMS = {
+#     'signup': 'accounts.forms.MySignupForm'
+# }
+SOCIALACCOUNT_AUTO_SIGNUP = True
+# ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.MySignupForm'
 LOGIN_REDIRECT_URL = '/'
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
 LOGOUT_REDIRECT_URL = '/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -195,3 +204,5 @@ STATICFILES_FINDERS = [
     # searches in STATIC subfolder of each app
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
