@@ -23,12 +23,15 @@ def user_solution(request):
         s4 = id
         s2 = 'https://www.codechef.com/{}/status/{}?sort_by=All&sorting_order=asc&language=All&status=All&handle={}&Submit=GO'.format(s,s3,s4)
         url = s2
+
         res = requests.get(url)
-        res.raise_for_status()
         soup = bs4.BeautifulSoup(res.content,'html.parser')
         tab = soup.find(class_='dataTable')
-        print(tab.prettify())
+        # handling NoneType error
+        if(tab==None):
+            return render(request,'solution.html',{'success':False})
 
+        # print(tab.prettify())
         id = tab.find_all('tr')
         print(id)
         my_list = []
@@ -67,7 +70,7 @@ def user_solution(request):
             zx[6] = x[6].text
             zx[7] = link1
             the_list.append(zx)
-        my_dict = {'my_list':my_list ,'the_list':the_list }
+        my_dict = {'my_list':my_list ,'the_list':the_list,'success':True }
         return render(request,'solution.html',my_dict)
 
     else :

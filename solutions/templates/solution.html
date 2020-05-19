@@ -30,6 +30,7 @@
       <th>Language</th>
       <th>Solution</th>
     </tr>
+    {%if success%}
     {% for  x in the_list %}
     <tr class = 'bg-light'>
       {% for key , value in x.items %}
@@ -44,7 +45,13 @@
       {% endfor %}
     </tr>
     {% endfor %}
+    {%endif%}
   </table>
+  {%if not success%}
+  <div class="text-center">
+    <p>No result found! Please try again.</p>
+  </div>
+  {% endif %}
 
 </div>
 
