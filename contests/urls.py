@@ -7,4 +7,5 @@ urlpatterns = [
     path('ajax_update',ajax_update_contests,name = 'ajax_update_contest'),
     path('ajax/data_filter',ajax_filter,name="ajax_filter"),
     path('atcoder_schedule',atcoder_scrape,name="atcoder_schedule"),
+    
 ]

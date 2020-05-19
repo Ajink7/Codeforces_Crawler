@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'bootstrap4',
 
-
+    'solutions',
     # for allauth
     #  documentation https://django-allauth.readthedocs.io/en/latest/
     'allauth',

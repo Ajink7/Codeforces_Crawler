@@ -23,6 +23,13 @@
           </li>
 
         </ul>
+        <ul class='navbar-nav'>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'solutions:user_solution' %}">Codechef submissions</a>
+          </li>
+
+        </ul>
+
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
   <ul class="navbar-nav ml-auto">
     {% if user.is_authenticated %}
