@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load static %}
 <div class="container" id ="profile_head">
   <header>
   	<div class="container">
   		<div class="row">
   			<div class="col-md-12 col-sm-12">
-          {%if user_profile.profile.profile_picture%}
+          {% if u.profile.profile_picture %}
           <img src="{{user_profile.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
-          {%endif%}
-  				<h1 class="tm-title bold shadow">UserName:{{user_profile.username}}</h1>
+          {% else %}
+          <img src="{% static 'default-avatar-2.jpeg' %}" alt="">
+          {% endif %}
+
 
   			</div>
   		</div>
@@ -16,41 +19,52 @@
   </header>
   </div>
   <br>
-  {% if not visitor%}
-  <a href="{% url 'update_profile' %}">Update Profile</a>
-  <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
-  <p>Location:{{user_profile.profile.location}}</p>
-  <p>Work:{{user_profile.profile.work}}</p>
-  <p>Education:{{user_profile.profile.education}}</p>
-  <p>Skills:{{user_profile.profile.skills}}</p>
-  <div class="">
 
-    <p>Friends:</p>
-    <ol>
-      {% for friend in friend_list%}
-       <li>{{friend.username}}</li>
-       {%endfor%}
-    </ol>
+	{% if request.user == u %}
+    <a href="{% url 'update_profile' %}">Update Profile</a>
+    <p class="tm-title bold shadow">UserName:{{user_profile.username}}</p>
+    <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
+    <p>Location:{{user_profile.profile.location}}</p>
+    <p>Work:{{user_profile.profile.work}}</p>
+    <p>Education:{{user_profile.profile.education}}</p>
+    <p>Skills:{{user_profile.profile.skills}}</p>
+		<h1>Friends</h1>
 
-  </div>
-  <div class="">
-    <p>Friend Requests ({{friend_requests_count}})</p>
-    <ol>
-      {% for friend in friend_requests %}
-      <li>{{friend.username}}</li>
-      {%endfor%}
-    </ol>
-  </div>
+		{% for friend in friends_list %}
+			<a href="{{ friend.user.profile.get_absolute_url }}">{{ friend.user.username }}</a>
+		{% endfor %}
+		<hr>
+		<h2>Sent Friend requests</h2>
+		<ul>
+		{% for s_request in sent_friend_requests %}
+			<li>{{ s_request.to_user.username }}</li>
+		{% endfor %}
+		</ul>
+		<hr>
+		<h2>Received Friend requests</h2>
 
-  {%else%}
+		{% for r_request in rec_friend_requests %}
+			<p><a href="{{ r_request.from_user.profile.get_absolute_url }}">{{ r_request.from_user.username }}</a></p>
+			<small><a class='btn btn-primary' href="/users/friend-request/accept/{{ r_request.from_user.id }}">Accept</a></small>
+			<small><a class='btn btn-warning' href="/users/friend-request/delete/{{ r_request.from_user.id }}">Ignore</a></small>
+		{% endfor %}
 
-  <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
-  <p>Location:{{user_profile.profile.location}}</p>
-  <p>Work:{{user_profile.profile.work}}</p>
-  <p>Education:{{user_profile.profile.education}}</p>
-  <p>Skills:{{user_profile.profile.skills}}</p>
 
-  {%endif%}
+	{% else %}
+    <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
+    <p>Location:{{user_profile.profile.location}}</p>
+    <p>Work:{{user_profile.profile.work}}</p>
+    <p>Education:{{user_profile.profile.education}}</p>
+    <p>Skills:{{user_profile.profile.skills}}</p>
+		{% if friends_status == 'not_friend' %}
+			<small><a class='btn btn-primary' href="/users/friend-request/send/{{ u.id }}">Add Friend</a></small>
+		{% elif button_status == 'friend_request_sent' %}
+			<small><a class="btn btn-warning" href="/users/friend-request/cancel/{{ u.id }}">Cancel Request</a></small>
+		{% endif %}
+
+	{% endif %}
+
+  
 
 <style >
   img{

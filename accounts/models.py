@@ -18,6 +18,7 @@ class UserProfile(models.Model):
     codechef_handle = models.CharField(max_length = 256,blank = True,null = True)
     leetcode_handle = models.CharField(max_length = 256,blank = True,null = True)
     atcoder_handle = models.CharField(max_length = 256,blank = True,null = True)
+    friends = models.ManyToManyField("Profile", blank=True)
 
 # def create_profile(sender, instance, created, *args, **kwargs):
 #     # ignore if this is an existing User
@@ -26,3 +27,10 @@ class UserProfile(models.Model):
 #     UserProfile.objects.create(user=instance)
 #
 # post_save.connect(create_profile, sender=User)
+class FriendRequest(models.Model):
+	to_user = models.ForeignKey(User, related_name='to_user',on_delete = models.CASCADE)
+	from_user = models.ForeignKey(User, related_name='from_user',on_delete = models.CASCADE)
+	timestamp = models.DateTimeField(auto_now_add=True) # set when created
+
+	def __str__(self):
+		return "From {}, to {}".format(self.from_user.username, self.to_user.username)
