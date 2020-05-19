@@ -26,7 +26,7 @@
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
   <ul class="navbar-nav ml-auto">
     {% if user.is_authenticated %}
-    <li class="nav-item">
+    <!-- <li class="nav-item">
       <span class="navbar-text">
         <a href="{% url 'profile' username=request.user %}">Welcome:{{user.username}}</a>
     </span>
@@ -34,7 +34,42 @@
 
     <li class="nav-item">
       <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-    </li>
+    </li> -->
+
+      <ul class="navbar-nav ml-auto nav-flex-icons">
+        <li class="nav-item avatar dropdown">
+          {%if user.profile.profile_picture %}
+          <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img class="md-avatar rounded" src="{{user.profile.profile_picture.url}}" alt="">
+          </a>
+          {% else %}
+          <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img class="md-avatar rounded" src="{% static 'default-avatar-2.jpeg' %}" alt="">
+          </a>
+          {% endif %}
+          <div class="dropdown-menu dropdown-menu-right dropdown-secondary" aria-labelledby="dropdownMenuLink">
+            <p class="dropdown-item">Signed in as <b>{{user.username}}</b></p>
+            <a class="dropdown-item" href="{% url 'profile' user.username %}">Profile</a>
+            <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+
+          </div>
+        </li>
+
+      </ul>
+      <style media="screen">
+        .md-avatar{
+          vertical-align: middle;
+          width: 30px;
+          height: auto;
+        }
+        .dropdown-item:hover {
+          background-color: #FF00FF !important;
+          color: white;
+        }
+      </style>
+
+
+
     {% else %}
     <li class="nav-item">
       <a class="nav-link" href="{% url 'login' %}">Login</a>
