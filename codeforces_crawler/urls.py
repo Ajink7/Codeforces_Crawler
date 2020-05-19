@@ -21,7 +21,7 @@ urlpatterns = [
     path('',IndexView.as_view(),name = 'index'),
     path('accounts/',include('accounts.urls')),
     path('contests/',include('contests.urls')),
-
+    path('solutions/',include('solutions.urls')),
 
 
 
