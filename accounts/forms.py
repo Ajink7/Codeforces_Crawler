@@ -53,5 +53,6 @@ class UserProfileCreateForm(ModelForm):
         profile.user.username = self.cleaned_data['username']
         profile.user.first_name = self.cleaned_data['firstname']
         profile.user.last_name = self.cleaned_data['lastname']
+        profile.user.save()
         profile.save()
         return profile
