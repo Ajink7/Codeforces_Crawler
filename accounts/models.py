@@ -18,7 +18,7 @@ class UserProfile(models.Model):
     codechef_handle = models.CharField(max_length = 256,blank = True,null = True)
     leetcode_handle = models.CharField(max_length = 256,blank = True,null = True)
     atcoder_handle = models.CharField(max_length = 256,blank = True,null = True)
-    friends = models.ManyToManyField("Profile", blank=True)
+    friends = models.ManyToManyField("UserProfile", blank=True)
 
 # def create_profile(sender, instance, created, *args, **kwargs):
 #     # ignore if this is an existing User

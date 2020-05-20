@@ -7,7 +7,7 @@
   		<div class="row">
   			<div class="col-md-12 col-sm-12">
           {% if u.profile.profile_picture %}
-          <img src="{{user_profile.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
+          <img src="{{u.profile.profile_picture.url}}" class="img-responsive img-circle tm-border" alt="">
           {% else %}
           <img src="{% static 'default-avatar-2.jpeg' %}" alt="">
           {% endif %}
@@ -22,12 +22,12 @@
 
 	{% if request.user == u %}
     <a href="{% url 'update_profile' %}">Update Profile</a>
-    <p class="tm-title bold shadow">UserName:{{user_profile.username}}</p>
-    <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
-    <p>Location:{{user_profile.profile.location}}</p>
-    <p>Work:{{user_profile.profile.work}}</p>
-    <p>Education:{{user_profile.profile.education}}</p>
-    <p>Skills:{{user_profile.profile.skills}}</p>
+    <p class="tm-title bold shadow">UserName:{{u.username}}</p>
+    <p>Name :{{u.first_name}} {{u.last_name}}</p>
+    <p>Location:{{u.profile.location}}</p>
+    <p>Work:{{u.profile.work}}</p>
+    <p>Education:{{u.profile.education}}</p>
+    <p>Skills:{{u.profile.skills}}</p>
 		<h1>Friends</h1>
 
 		{% for friend in friends_list %}
@@ -45,7 +45,7 @@
 
 		{% for r_request in rec_friend_requests %}
 			<p><a href="{{ r_request.from_user.profile.get_absolute_url }}">{{ r_request.from_user.username }}</a></p>
-			<small><a class='btn btn-primary' href="/users/friend-request/accept/{{ r_request.from_user.id }}">Accept</a></small>
+			<small><a class='btn btn-primary' href="{% url 'accept_friend_request' r_request.from_user %}">Accept</a></small>
 			<small><a class='btn btn-warning' href="/users/friend-request/delete/{{ r_request.from_user.id }}">Ignore</a></small>
 		{% endfor %}
 
@@ -56,15 +56,15 @@
     <p>Work:{{user_profile.profile.work}}</p>
     <p>Education:{{user_profile.profile.education}}</p>
     <p>Skills:{{user_profile.profile.skills}}</p>
-		{% if friends_status == 'not_friend' %}
-			<small><a class='btn btn-primary' href="/users/friend-request/send/{{ u.id }}">Add Friend</a></small>
-		{% elif button_status == 'friend_request_sent' %}
-			<small><a class="btn btn-warning" href="/users/friend-request/cancel/{{ u.id }}">Cancel Request</a></small>
+		{% if friend_status == 'not_friend' %}
+			<small><a class='btn btn-primary' href="{% url 'send_friend_request' u.username%}">Add Friend</a></small>
+		{% elif friend_status == 'friend_request_sent' %}
+			<small><a class="btn btn-warning" href="{% url 'cancel_friend_request' u.username%}">Cancel Request</a></small>
 		{% endif %}
 
 	{% endif %}
 
-  
+
 
 <style >
   img{
