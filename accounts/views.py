@@ -37,12 +37,17 @@ def accept_friend_request(request, username):
 	frequest.delete()
 	return redirect(reverse('profile',kwargs={'username':request.user.username}))
 
-def delete_friend_request(request, id):
-	from_user = get_object_or_404(User, id=id)
+def delete_friend_request(request, username):
+	from_user = get_object_or_404(User, username = username)
 	frequest = FriendRequest.objects.filter(from_user=from_user, to_user=request.user).first()
 	frequest.delete()
-	return HttpResponseRedirect('/users/{}'.format(request.user.profile.slug))
+	return redirect(reverse('profile',kwargs={'username':request.user.username}))
 
+def remove_friend(request,username):
+	to_remove_user = get_object_or_404(User,username = username)
+	request.user.profile.friends.remove(to_remove_user.profile)
+	to_remove_user.profile.friends.remove(request.user.profile)
+	return redirect(reverse('profile',kwargs={'username':username}))
 
 ####
 class SignUpView(generic.CreateView):
@@ -57,7 +62,6 @@ class SignUpView(generic.CreateView):
 	# template_name = 'accounts/profile.html'
 
 @login_required
-# @user_passes_test(condition)
 def get_profile(request,username):
 
 	u = User.objects.get(username=username)
@@ -70,16 +74,16 @@ def get_profile(request,username):
 	# is this user our friend
 	friend_status = 'none'
 	if p not in request.user.profile.friends.all():
-		button_status = 'not_friend'
+		friend_status = 'not_friend'
 
 		# if we have sent him a friend request
 		if len(FriendRequest.objects.filter(
 			from_user=request.user).filter(to_user=p.user)) == 1:
-				button_status = 'friend_request_sent'
-
+				friend_status = 'friend_request_sent'
+	else: friend_status = 'friend'
 	context = {
 		'u': u,
-		'friend_status': button_status,
+		'friend_status': friend_status,
 		'friends_list': friends,
 		'sent_friend_requests': sent_friend_requests,
 		'rec_friend_requests': rec_friend_requests
@@ -121,3 +125,12 @@ class UpdateProfileView(LoginRequiredMixin,generic.UpdateView):
 	#     return redirect(self.success_url)
 	def get_object(self):
 		return self.request.user.profile
+
+class SearchUsers(generic.ListView):
+	model = User
+	template_name='accounts/search_users.html'
+	context_object_name = 'users'
+	def get_queryset(self):
+		query = self.request.GET.get('query')
+		object_list = User.objects.filter(username__icontains=query).exclude(is_superuser = True)
+		return object_list

@@ -46,17 +46,20 @@
 		{% for r_request in rec_friend_requests %}
 			<p><a href="{{ r_request.from_user.profile.get_absolute_url }}">{{ r_request.from_user.username }}</a></p>
 			<small><a class='btn btn-primary' href="{% url 'accept_friend_request' r_request.from_user %}">Accept</a></small>
-			<small><a class='btn btn-warning' href="/users/friend-request/delete/{{ r_request.from_user.id }}">Ignore</a></small>
+			<small><a class='btn btn-warning' href="{% url 'delete_friend_request' r_request.from_user %}">Ignore</a></small>
 		{% endfor %}
 
 
 	{% else %}
-    <p>Name :{{user_profile.first_name}} {{user.last_name}}</p>
-    <p>Location:{{user_profile.profile.location}}</p>
-    <p>Work:{{user_profile.profile.work}}</p>
-    <p>Education:{{user_profile.profile.education}}</p>
-    <p>Skills:{{user_profile.profile.skills}}</p>
-		{% if friend_status == 'not_friend' %}
+    <p>Name :{{u.first_name}} {{u.last_name}}</p>
+    <p>Location:{{u.profile.location}}</p>
+    <p>Work:{{u.profile.work}}</p>
+    <p>Education:{{u.profile.education}}</p>
+    <p>Skills:{{u.profile.skills}}</p>
+    {% if friend_status == 'friend' %}
+      <small><a class='btn btn-primary' href="{% url 'remove_friend' u.username%}">Remove Friend</a></small>
+
+    {% elif friend_status == 'not_friend' %}
 			<small><a class='btn btn-primary' href="{% url 'send_friend_request' u.username%}">Add Friend</a></small>
 		{% elif friend_status == 'friend_request_sent' %}
 			<small><a class="btn btn-warning" href="{% url 'cancel_friend_request' u.username%}">Cancel Request</a></small>

@@ -13,4 +13,7 @@ urlpatterns = [
     path('profile/<str:username>/send_friend_request',send_friend_request,name='send_friend_request'),
     path('profile/<str:username>/cancel_friend_request',cancel_friend_request,name = 'cancel_friend_request'),
     path('profile/<str:username>/accept_friend_request',accept_friend_request,name = 'accept_friend_request'),
+    path('profile/<str:username>/delete_friend_request',delete_friend_request,name = 'delete_friend_request'),
+    path('profile/<str:username>/remove_friend',remove_friend,name = 'remove_friend'),
+    path('search_users/',SearchUsers.as_view(),name = 'search_users')
 ]
