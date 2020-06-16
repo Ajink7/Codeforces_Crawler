@@ -9,23 +9,38 @@ from . forms import UserCreateForm,UserProfileCreateForm
 from friendship.models import Friend, Follow, Block
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 #friendship views
-def send_friend_request(request, username):
-	if request.user.is_authenticated:
+
+
+def send_friend_request(request):
+	if request.method=='GET' and request.is_ajax():
+		username = request.GET.get('username',None)
 		user = get_object_or_404(User, username = username)
 		frequest, created = FriendRequest.objects.get_or_create(
 			from_user=request.user,
 			to_user=user)
-		return redirect(reverse('profile',kwargs={'username':username}))
-
-def cancel_friend_request(request, username):
-	if request.user.is_authenticated:
+		sucess = False
+		if created or frequest:
+			success = True
+		data = {
+			'success':success
+		}
+		return JsonResponse(data)
+def cancel_friend_request(request):
+	if request.method=='GET' and request.is_ajax():
+		username = request.GET.get('username',None)
 		user = get_object_or_404(User, username=username)
+		sucess = False;
 		frequest = FriendRequest.objects.filter(
 			from_user=request.user,
 			to_user=user)
 		frequest.delete()
-		return redirect(reverse('profile',kwargs={'username':username}))
+		success = True;
+		data = {
+			'success':success
+		}
+		return JsonResponse(data)
 
 def accept_friend_request(request, username):
 	from_user = get_object_or_404(User, username=username)
@@ -43,11 +58,18 @@ def delete_friend_request(request, username):
 	frequest.delete()
 	return redirect(reverse('profile',kwargs={'username':request.user.username}))
 
-def remove_friend(request,username):
-	to_remove_user = get_object_or_404(User,username = username)
-	request.user.profile.friends.remove(to_remove_user.profile)
-	to_remove_user.profile.friends.remove(request.user.profile)
-	return redirect(reverse('profile',kwargs={'username':username}))
+def remove_friend(request):
+	if request.method=="GET" and request.is_ajax():
+		success = False
+		username = request.GET.get('username',None)
+		to_remove_user = get_object_or_404(User,username = username)
+		request.user.profile.friends.remove(to_remove_user.profile)
+		to_remove_user.profile.friends.remove(request.user.profile)
+		success = True
+		data ={
+			'success':success
+		}
+	return JsonResponse(data)
 
 ####
 class SignUpView(generic.CreateView):
@@ -134,3 +156,24 @@ class SearchUsers(generic.ListView):
 		query = self.request.GET.get('query')
 		object_list = User.objects.filter(username__icontains=query).exclude(is_superuser = True)
 		return object_list
+
+def friend_status(request):
+	if request.method == "GET" and request.is_ajax():
+		username = request.GET.get('username',None)
+		friend_status = None
+		u = User.objects.get(username=username)
+		p = u.profile
+		if p not in request.user.profile.friends.all():
+			friend_status = 'not_friend'
+
+			# if we have sent him a friend request
+			if len(FriendRequest.objects.filter(
+				from_user=request.user).filter(to_user=p.user)) == 1:
+					friend_status = 'friend_request_sent'
+		else: friend_status = 'friend'
+
+		data={
+			'friend_status':friend_status
+		}
+
+	return JsonResponse(data)

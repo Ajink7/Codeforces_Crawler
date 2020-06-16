@@ -9,10 +9,10 @@ from django.dispatch import receiver
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User,related_name ='profile',on_delete=models.CASCADE)
-    location = models.CharField(max_length=256,blank = True,null = True)
+    country = models.CharField(max_length=256,blank = True,null = True)
     profile_picture = models.ImageField(upload_to='profile_pics', blank=True,null = True)
     work = models.CharField(max_length = 512,blank = True,null = True)
-    education =  models.CharField(max_length = 512,blank = True,null = True)
+    college=  models.CharField(max_length = 512,blank = True,null = True)
     skills = models.CharField(max_length = 512,blank = True,null = True)
     codeforces_handle = models.CharField(max_length = 256,blank = True,null = True)
     codechef_handle = models.CharField(max_length = 256,blank = True,null = True)
