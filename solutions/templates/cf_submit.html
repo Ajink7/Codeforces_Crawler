@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+  <br>
+  <br>
+  <h1>Fill out the Following form to get the Codeforces solution</h1>
+
+  <div class="jumbotron">
+
+  <form  method="post" action="{% url 'solutions:cf_submissions' %}" >
+    {% csrf_token %}
+    <label for="contestno">Contest Code</label>
+    <input type="text" name="contestno" value="">
+    <label for="username">User Account</label>
+    <input type="username" name="username" value="">
+    <label for="problem">Problem Code</label>
+    <input type="text" name="problem" value="">
+    <input type="submit" name="" value="submissions">
+  </form>
+
+</div>
+<div class="jumbotron">
+  <table class='table'>
+    {% if success %}
+    <tr class='bg-info'>
+      <th>ID</th>
+      <th>Problem Name</th>
+      <th>Problem Rating</th>
+      <th>Tags</th>
+      <th>Verdict</th>
+      <th>Language Used</th>
+      <th>Solution</th>
+    </tr>
+    {% for sub in my_list %}
+    <tr class = 'bg-light'>
+      <td>{{sub.id}}</td>
+      <td>{{sub.prob_name}}</td>
+      <td>{{sub.prob_rating}}</td>
+      <td>{% for tag in sub.prob_tags %}
+        {{tag}},
+      {% endfor %}</td>
+      <td>{{sub.verdict}}</td>
+      <td>{{sub.lang}}</td>
+      <td> <a href="{{sub.code_link}}" target="_blank">View</a></td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <h1>Error!</h1>
+
+    {% endif %}
+  </table>
+
+</div>
+
+{% endblock %}
