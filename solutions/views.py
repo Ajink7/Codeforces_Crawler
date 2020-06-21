@@ -75,3 +75,46 @@ def user_solution(request):
 
     else :
         return render(request,'solution.html')
+
+
+
+def cf_submissions(request):
+    if request.method=='POST' :
+        id = request.POST.get('username')
+        prob = request.POST.get('problem')
+        cont = request.POST.get('contestno')
+        s = ' https://codeforces.com/api/user.status?handle={}&from=1'.format(id)
+        r = requests.get(s)
+        r1  = r.json()
+        r2 = r1['result']
+        print(type(r2))
+        print(cont)
+        print(prob)
+        l = []
+        for x in r2:
+            print(x['problem']['contestId'])
+            print(x['problem']['index'])
+            if x['problem']['contestId']==int(cont) and x['problem']['index']==prob:
+                l.append(x)
+
+        my_list = []
+        for x in l:
+            my_dict = {}
+            my_dict[0]=x['id']
+            my_dict[1]=x['problem']['name']
+            my_dict[2]=x['problem']['rating']
+            s = ""
+            for y in x['problem']['tags']:
+                s = s + y + " , "
+            my_dict[3]=s
+            my_dict[4]=x['verdict']
+            my_dict[5]=x['programmingLanguage']
+            s = "https://codeforces.com/contest/{}/submission/{}".format(cont,my_dict[0])
+            my_dict[6]=s
+            my_list.append(my_dict)
+
+        dict = {'my_list':my_list}
+        return render(request,'cf_submit.html',dict)
+
+    else :
+        return render(request,'cf_submit.html')
