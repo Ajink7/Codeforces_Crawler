@@ -20,6 +20,7 @@
 </div>
 <div class="jumbotron">
   <table class='table'>
+    {% if success %}
     <tr class='bg-info'>
       <th>ID</th>
       <th>Problem Name</th>
@@ -29,20 +30,23 @@
       <th>Language Used</th>
       <th>Solution</th>
     </tr>
-    {% for  x in my_list %}
+    {% for sub in my_list %}
     <tr class = 'bg-light'>
-      {% for key , value in x.items %}
-        {% if key == 6 %}
-          <td> <a href="{{ value }}">VIEW</a> </td>
-
-        {% else %}
-            <td>{{ value }}</td>
-
-        {% endif %}
-
-      {% endfor %}
+      <td>{{sub.id}}</td>
+      <td>{{sub.prob_name}}</td>
+      <td>{{sub.prob_rating}}</td>
+      <td>{% for tag in sub.prob_tags %}
+        {{tag}},
+      {% endfor %}</td>
+      <td>{{sub.verdict}}</td>
+      <td>{{sub.lang}}</td>
+      <td> <a href="{{sub.code_link}}" target="_blank">View</a></td>
     </tr>
     {% endfor %}
+    {% else %}
+    <h1>Error!</h1>
+
+    {% endif %}
   </table>
 
 </div>
