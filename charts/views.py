@@ -1,4 +1,3 @@
-
 from django.shortcuts import render
 import webbrowser,bs4,sys,requests
 import datetime
@@ -8,7 +7,7 @@ from dateutil.parser import parse
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from requests_html import HTMLSession
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 
 # Create your views here.
 
@@ -20,11 +19,15 @@ class Userdata :
 
 
 # Create your views here.
-def get_profile(request):
 
-    if request.method == 'POST' :
-        data = {}
-        id = request.POST.get('handle')
+def charts(request):
+    return render(request,'charts/charts.html')
+
+
+def get_data(request):
+    data = dict()
+    if request.method == 'GET' :
+        id = request.GET.get('handle')
         s = ' https://codeforces.com/api/user.status?handle={}&from=1'.format(id)
         r = requests.get(s)
         if r.status_code==200:
@@ -41,27 +44,28 @@ def get_profile(request):
                     if x['verdict'] in verdicts:
                         verdicts[x['verdict']] = verdicts[x['verdict']] + 1
                     else:
-                        verdicts[x['verdict']] = 0    
+                        verdicts[x['verdict']] = 0
                     if x['verdict']=="OK" :
                         user1.solved = user1.solved + 1
-                        zx = x['problem']['rating']
-                        if zx in level:
-                            level[zx] = level[zx] + 1
-                        else :
-                            level[zx] = 0
+                        # zx = x['problem']['rating']
+                        # if zx in level:
+                        #     level[zx] = level[zx] + 1
+                        # else :
+                        #     level[zx] = 0
 
                         for y in x['problem']['tags']:
                             if y in tags:
                                 tags[y] = tags[y] + 1
                             else:
                                 tags[y] = 0
-
-
-
-
+                data['tags'] =tags
+                # print(data['tags'])
+                data['success'] = True
 
             else:
                 data['success'] = False
         else:
             data['success'] = False
-        return render(request,'cf_submit.html',data)
+    else:
+        data['success'] = False
+    return JsonResponse(data)

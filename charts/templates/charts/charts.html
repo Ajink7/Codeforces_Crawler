@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+{% endblock %}
+{% block content %}
+<div class="pb-5" style="background:#f5f5f5;">
+  <br>
+  <br>
+
+  <div class="container p-5" id="handle-form-div">
+
+    <input type="text" name="" value="" id="handle">
+    <button type="button" name="button" id="submitButton">Submit</button>
+
+  </div>
+
+  <div class=" container bg-white" id="charts-div" hidden  style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+
+
+    <div class=" p-5 text-center">
+
+
+      <h3>Pie Chart</h3>
+
+      <div class="" id="pie-chart-div">
+
+
+        <canvas id="pie-chart" width="800" height="450"></canvas>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  $('#submitButton').click(function() {
+    // alert('this is called!');
+    handle = $('#handle').val()
+    $.ajax({
+      url: '/charts/getData',
+      data: {
+        'handle': handle
+      },
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function() {
+        // alert('before send');
+      },
+      success: function(data) {
+        if (data.success) {
+          console.log("success");
+          // console.log(data['tags']);
+          tags = data['tags'];
+          var labels = [];
+          var tag_data = [];
+          console.log(tags);
+          for (var key in tags) {
+            labels.push(key);
+            tag_data.push(tags[key]);
+          }
+          console.log(labels);
+          console.log(tag_data);
+          $('#pie-chart-div').html('<canvas id="pie-chart" width="800" height="450"></canvas>');
+          new Chart(document.getElementById("pie-chart"), {
+            type: 'pie',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: "Probelms solved",
+                backgroundColor: ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1',
+                  '#000075', '#808080', '#ffffff', '#000000'
+                ],
+                data: tag_data
+              }]
+            },
+            options: {
+              title: {
+                display: true,
+                text: 'Problems Solved(Tag wise)'
+              }
+            }
+
+          });
+          $("#charts-div").prop('hidden', false);
+        } else {
+          console.log('error');
+        }
+      },
+    });
+
+  });
+</script>
+
+
+
+{% endblock %}

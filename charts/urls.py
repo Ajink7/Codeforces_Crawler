@@ -1,5 +1,5 @@
 from django.urls import path , re_path , include
-from solutions import views
+from . import views
 
 
 app_name = 'charts'
@@ -7,5 +7,6 @@ app_name = 'charts'
 
 urlpatterns = [
 
-    path('/',views.get_profile,name='get_profile'),
+    path('',views.charts),
+    path('getData/',views.get_data,name="get_data"),
 ]
