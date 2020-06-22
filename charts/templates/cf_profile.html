@@ -15,6 +15,20 @@
   </form>
 
 </div>
+<div class="jumbotron">
+  {% if success %}
+    {{user1.attempted}}
 
+    {% for x in user1.tag %}
+
+      {{x.name}}
+      {{x.count}}
+    {% endfor %}
+
+  {% else %}
+
+  {% endif %}
+
+</div>
 
 {% endblock %}
