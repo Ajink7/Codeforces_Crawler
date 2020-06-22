@@ -10,6 +10,7 @@ from requests_html import HTMLSession
 from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from django.core.serializers import serialize
 import json
+from operator import itemgetter
 # Create your views here.
 
 class Userdata:
@@ -107,6 +108,7 @@ def get_data(request):
                     verdicts_list.append(o1.__dict__)
                 user.username = handle
                 user.tags = tags_list
+                prob_rating_list = sorted(prob_rating_list,key=itemgetter('rating'),reverse=True)
                 user.prob_rating = prob_rating_list
                 user.verdicts = verdicts_list
                 data['user_data'] = user.__dict__
