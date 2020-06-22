@@ -53,13 +53,13 @@
         if (data.success) {
           console.log("success");
           // console.log(data['tags']);
-          tags = data['tags'];
+          tags = data['user_data']['tags'];
           var labels = [];
           var tag_data = [];
           console.log(tags);
-          for (var key in tags) {
-            labels.push(key);
-            tag_data.push(tags[key]);
+          for (var i =0;i<tags.length;i++) {
+            labels.push(tags[i]['name']);
+            tag_data.push(tags[i]['count']);
           }
           console.log(labels);
           console.log(tag_data);
