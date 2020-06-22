@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+  <br>
+  <br>
+
+
+  <div class="jumbotron">
+
+  <form  method="post" action="{% url 'charts:get_profile' %}" >
+    {% csrf_token %}
+    <label for="handle">Codeforces Handle</label>
+    <input type="text" name="handle" value="">
+
+    <input type="submit" name="" value="SUBMIT">
+  </form>
+
+</div>
+
+
+{% endblock %}

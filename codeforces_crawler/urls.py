@@ -31,7 +31,7 @@ urlpatterns = [
     path('friendship/', include('friendship.urls')),
     path('solutions/',include('solutions.urls')),
 
-
+    path('userprofile/',include('charts.urls')),
 
     # Note that you do not necessarily need the URLs provided by django.contrib.auth.urls.
     # Instead of the URLs login, logout, and password_change (among others),
