@@ -52,7 +52,7 @@ def get_data(request):
     data = dict()
     if request.method == 'GET' and request.is_ajax():
         handle = request.GET.get('handle')
-        url = ' https://codeforces.com/api/user.status?handle={}&from=1'.format(handle)
+        url = 'https://codeforces.com/api/user.status?handle={}&from=1'.format(handle)
         r = requests.get(url)
         if r.status_code==200:
             json_data  = r.json()
@@ -64,18 +64,28 @@ def get_data(request):
                 level = {}
                 tags = {}
                 verdicts = {}
-                for x in result:
-                    if x['verdict'] in verdicts:
-                        verdicts[x['verdict']] = verdicts[x['verdict']] + 1
+                for submission in result:
+                    if submission['verdict'] in verdicts:
+                        verdicts[submission['verdict']] += 1
                     else:
-                        verdicts[x['verdict']] = 0
-                    if x['verdict']=="OK" :
+                        verdicts[submission['verdict']] = 1
+                    if submission['verdict']=="OK" :
                         user.accepted +=1
-                        for y in x['problem']['tags']:
+                        for y in submission['problem']['tags']:
                             if y in tags:
-                                tags[y] = tags[y] + 1
+                                tags[y] +=1
                             else:
-                                tags[y] = 0
+                                tags[y] = 1
+
+                        try:
+                            prob_rating = submission['problem']['rating']
+                            if prob_rating in level:
+                                level[prob_rating]+=1
+                            else:
+                                level[prob_rating]=1
+                        except:
+                            pass
+
                 tags_list = []
                 prob_rating_list = []
                 verdicts_list = []
@@ -90,7 +100,6 @@ def get_data(request):
                     o1.rating = key
                     o1.count = value
                     prob_rating_list.append(o1.__dict__)
-
                 for key , value in verdicts.items():
                     o1 = Verdict()
                     o1.verdict = key
@@ -100,10 +109,7 @@ def get_data(request):
                 user.tags = tags_list
                 user.prob_rating = prob_rating_list
                 user.verdicts = verdicts_list
-                # str_data = serialize('json', user)
-                # user = json.loads(str_data)
                 data['user_data'] = user.__dict__
-                # print(user.tags)
                 data['success'] = True
 
             else:

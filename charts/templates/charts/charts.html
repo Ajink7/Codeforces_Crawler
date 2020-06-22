@@ -2,6 +2,17 @@
 
 {% block head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+
+<style media="screen">
+  .chartBox{
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: white;
+  }
+  canvas{
+    margin:auto;
+  }
+</style>
 {% endblock %}
 {% block content %}
 <div class="pb-5" style="background:#f5f5f5;">
@@ -15,23 +26,25 @@
 
   </div>
 
-  <div class=" container bg-white" id="charts-div" hidden  style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+  <div class=" container text-center" id="charts-div" hidden>
 
+    <h3>Charts</h3>
+      <div class="mt-5 p-5 chartBox" id="doughnut-chart-div">
 
-    <div class=" p-5 text-center">
-
-
-      <h3>Pie Chart</h3>
-
-      <div class="" id="pie-chart-div">
-
-
-        <canvas id="pie-chart" width="800" height="450"></canvas>
+        <canvas id="doughnut-chart" width="800" height="450"></canvas>
 
       </div>
+      <div class="mt-5 p-5 chartBox" id="problem_ratings_bar_chart_div">
+
+        <canvas id="problem_ratings_bar_chart" width="800" height="450"></canvas>
+
+      </div>
+
     </div>
 
+
   </div>
+
 
 </div>
 
@@ -52,26 +65,73 @@
       success: function(data) {
         if (data.success) {
           console.log("success");
+          $("#charts-div").prop('hidden', false);
+
           // console.log(data['tags']);
+           ////////////////////////////////////////////////////////////////////////
+          // doughnut-chart
           tags = data['user_data']['tags'];
-          var labels = [];
+          var tag_labels = [];
           var tag_data = [];
-          console.log(tags);
-          for (var i =0;i<tags.length;i++) {
-            labels.push(tags[i]['name']);
+          // console.log(tags);
+          for (var i = 0; i < tags.length; i++) {
+            tag_labels.push(tags[i]['name']);
             tag_data.push(tags[i]['count']);
           }
-          console.log(labels);
-          console.log(tag_data);
-          $('#pie-chart-div').html('<canvas id="pie-chart" width="800" height="450"></canvas>');
-          new Chart(document.getElementById("pie-chart"), {
-            type: 'pie',
+          // console.log(tag_labels);
+          // console.log(tag_data);
+          $('#doughnut-chart-div').html('<canvas id="doughnut-chart" width="800" height="450"></canvas>');
+          new Chart(document.getElementById("doughnut-chart"), {
+            type: 'doughnut',
             data: {
-              labels: labels,
+              labels: tag_labels,
               datasets: [{
                 label: "Probelms solved",
-                backgroundColor: ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1',
-                  '#000075', '#808080', '#ffffff', '#000000'
+                backgroundColor: [
+                  '#f44336',
+                  '#E91E63',
+                  '#9C27B0',
+                  '#673AB7',
+                  '#2196F3',
+                  '#009688',
+                  '#8BC34A',
+                  '#CDDC39',
+                  '#FFC107',
+                  '#FF9800',
+                  '#FF5722',
+                  '#795548',
+                  '#607D8B',
+                  '#E65100',
+                  '#827717',
+                  '#004D40',
+                  '#1A237E',
+                  '#6200EA',
+                  '#3F51B5',
+                  '#F50057',
+                  '#304FFE',
+                  '#b71c1c',
+                  '#e6194b',
+                  '#3cb44b',
+                  '#ffe119',
+                  '#4363d8',
+                  '#f58231',
+                  '#911eb4',
+                  '#46f0f0',
+                  '#f032e6',
+                  '#bcf60c',
+                  '#fabebe',
+                  '#008080',
+                  '#e6beff',
+                  '#9a6324',
+                  '#fffac8',
+                  '#800000',
+                  '#aaffc3',
+                  '#808000',
+                  '#ffd8b1',
+                  '#000075',
+                  '#808080',
+                  '#ffffff',
+                  '#000000'
                 ],
                 data: tag_data
               }]
@@ -79,12 +139,128 @@
             options: {
               title: {
                 display: true,
-                text: 'Problems Solved(Tag wise)'
+                text: 'Problems Solved (Tag wise)',
+                fontSize: 18,
+                fontColor: "#111",
               }
             }
 
           });
-          $("#charts-div").prop('hidden', false);
+
+          ////////////////////////////////////////////////////////////////////////
+          // bar-chart for problem ratings
+          prob_rating_labels = []
+          prob_rating_data = []
+          max_rating_data = 0;
+          prob_ratings = data['user_data']['prob_rating']
+          for(var i=0;i<prob_ratings.length;i++)
+          {
+            prob_rating_labels.push(prob_ratings[i]['rating']);
+            prob_rating_data.push(prob_ratings[i]['count']);
+            max_rating_data = Math.max(max_rating_data,prob_ratings[i]['count']);
+          }
+
+          $('#problem_ratings_bar_chart_div').html('<canvas id="problem_ratings_bar_chart" width="800" height="450"></canvas>');
+          new Chart(document.getElementById("problem_ratings_bar_chart"), {
+              type: 'bar',
+              data: {
+                labels: prob_rating_labels,
+                datasets: [{
+                  label: 'Solved',
+                  data: prob_rating_data,
+                  backgroundColor: [
+                    '#f44336',
+                    '#E91E63',
+                    '#9C27B0',
+                    '#673AB7',
+                    '#2196F3',
+                    '#009688',
+                    '#8BC34A',
+                    '#CDDC39',
+                    '#FFC107',
+                    '#FF9800',
+                    '#FF5722',
+                    '#795548',
+                    '#607D8B',
+                    '#E65100',
+                    '#827717',
+                    '#004D40',
+                    '#1A237E',
+                    '#6200EA',
+                    '#3F51B5',
+                    '#F50057',
+                    '#304FFE',
+                    '#b71c1c',
+                    '#e6194b',
+                    '#3cb44b',
+                    '#ffe119',
+                    '#4363d8',
+                    '#f58231',
+                    '#911eb4',
+                    '#46f0f0',
+                    '#f032e6',
+                    '#bcf60c',
+                    '#fabebe',
+                    '#008080',
+                    '#e6beff',
+                    '#9a6324',
+                    '#fffac8',
+                    '#800000',
+                    '#aaffc3',
+                    '#808000',
+                    '#ffd8b1',
+                    '#000075',
+                    '#808080',
+                    '#ffffff',
+                    '#000000',
+                  ],
+                  // borderColor: [
+                  //   'rgba(255,99,132,1)',
+                  //   'rgba(54, 162, 235, 1)',
+                  //   'rgba(255, 206, 86, 1)',
+                  //   'rgba(75, 192, 192, 1)',
+                  //   'rgba(153, 102, 255, 1)',
+                  //   'rgba(255, 159, 64, 1)',
+                  //   'rgba(255,99,132,1)',
+                  //   'rgba(54, 162, 235, 1)',
+                  //   'rgba(255, 206, 86, 1)',
+                  //   'rgba(75, 192, 192, 1)',
+                  //   'rgba(153, 102, 255, 1)',
+                  //   'rgba(255, 159, 64, 1)'
+                  // ],
+                  borderWidth: 0,
+                }]
+              },
+              options: {
+                responsive: false,
+                title: {
+                  display: true,
+                  position: "top",
+                  text: "Problem Ratings",
+                  fontSize: 18,
+                  fontColor: "#111"
+                },
+                legend: {
+                  display: true,
+                  position: "bottom",
+                  labels: {
+                    fontColor: "#333",
+                    fontSize: 16
+                  }
+                },
+                scales: {
+                  yAxes: [{
+                    ticks: {
+                      min: 0,
+                      max:max_rating_data+ Math.round(Math.min(max_rating_data/5,5)),
+                    }
+                  }, ]
+                }
+              }
+              ////////////////////////////////////////////////////////////////////////
+
+            });
+
         } else {
           console.log('error');
         }
@@ -92,6 +268,7 @@
     });
 
   });
+
 </script>
 
 
