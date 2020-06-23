@@ -30,7 +30,7 @@ urlpatterns = [
     path('contests/',include('contests.urls')),
     path('friendship/', include('friendship.urls')),
     path('solutions/',include('solutions.urls')),
-
+    path('forum/',include('forum.urls')),
     path('charts/',include('charts.urls')),
 
     # Note that you do not necessarily need the URLs provided by django.contrib.auth.urls.
