@@ -48,3 +48,4 @@ websockets==8.1
 Werkzeug==1.0.1
 whitenoise==5.1.0
 Willow==1.1
+django-widget-tweaks
