@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import webbrowser,bs4,sys,requests
-import datetime
+import datetime,calendar
 from django.utils import timezone
 import pytz
 from dateutil.parser import parse
@@ -122,3 +122,60 @@ def get_data(request):
         data['success'] = False
     # print(data)
     return JsonResponse( data)
+
+def get_user_ratings(request):
+    data = dict()
+    data['success'] = False
+    if request.method=='GET' and request.is_ajax():
+        username = request.GET.get('handle')
+        url = "https://codeforces.com/api/user.rating?handle={}".format(username)
+        r = requests.get(url)
+        data['status_code'] = r.status_code
+        if r.status_code != 200:
+            pass
+        else:
+            json_data = r.json()
+            if json_data['status']!='OK':
+                pass
+            else:
+                result = json_data['result']
+                contests_list = []
+                rating_list = []
+                rating_change_list =[]
+                rank_list = []
+                time_list = []
+                line_chart_data_list = []
+                for contest in result:
+                    contestName = contest['contestName']
+                    rank = contest['rank']
+                    time = contest['ratingUpdateTimeSeconds']
+
+                    month = datetime.datetime.utcfromtimestamp(time).month
+                    day = datetime.datetime.utcfromtimestamp(time).day
+                    year = datetime.datetime.utcfromtimestamp(time).year
+                    time_str = calendar.month_abbr[month] + " " + str(day) + " "+str(year)
+
+                    oldRating =contest['oldRating']
+                    newRating = contest['newRating']
+                    if oldRating == 0:
+                        oldRating = 1500
+                    ratingChange = newRating-oldRating
+                    if ratingChange>0:
+                        ratingChange="+"+str(ratingChange)
+                    else:
+                        ratingChange = str(ratingChange)
+                    rating_list.append(newRating)
+                    rating_change_list.append(newRating-oldRating)
+                    rank_list.append(rank)
+                    time_list.append(time_str)
+                    contests_list.append(contestName)
+                    line_chart_data_list.append({'rating':newRating,'date':time_str,'contestName':contestName,'ratingChange':ratingChange,'rank' :rank,})
+
+                data['rank_list'] =  rank_list
+                data['time_list'] = time_list
+                data['rating_change_list'] = rating_change_list
+                data['contests_list'] = contests_list
+                data['line_chart_data_list'] = line_chart_data_list
+                data['success'] = True
+    print(data)
+    return JsonResponse(data)
