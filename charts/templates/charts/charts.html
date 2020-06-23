@@ -3,15 +3,26 @@
 {% block head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/material.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
 
 <style media="screen">
-  .chartBox{
+  .chartBox {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     background-color: white;
   }
-  canvas{
-    margin:auto;
+
+  canvas {
+    margin: auto;
     overflow: scroll;
+  }
+
+  #chartdiv {
+    width: 100%;
+    height: 500px;
   }
 </style>
 {% endblock %}
@@ -21,30 +32,39 @@
   <br>
 
   <div class="container p-5" id="handle-form-div">
-
-    <input type="text" name="" value="" id="handle">
-    <button type="button" name="button" id="submitButton">Submit</button>
+    <div class="form-group">
+      <label for="handle">Codeforces user handle</label>
+      <input autofocus  placeholder="Username" type="text" name="" value=""   class="form-control" id="handle">
+    </div>
+    <button type="button" name="button" class="btn btn-bg btn-warning" id="submitButton">Submit</button>
 
   </div>
 
   <div class=" container text-center" id="charts-div" hidden>
 
     <h3>Charts</h3>
-      <div class="mt-5 p-5 chartBox" id="doughnut-chart-div">
 
-        <canvas id="doughnut-chart" width="800" height="450"></canvas>
+    {% comment %} tutorial for charts.js https://tobiasahlin.com/blog/chartjs-charts-to-get-you-started/#8-grouped-bar-chart {% endcomment %}
+    <div class="mt-5 p-5 chartBox" id="doughnut-chart-div">
 
-      </div>
-      <div class="mt-5 p-5 chartBox" id="problem_ratings_bar_chart_div">
-
-        <canvas id="problem_ratings_bar_chart" width="800" height="450"></canvas>
-
-      </div>
+      <canvas id="doughnut-chart" width="800" height="450"></canvas>
 
     </div>
+    <div class="mt-5 p-5 chartBox" id="problem_ratings_bar_chart_div">
 
+      <canvas id="problem_ratings_bar_chart" width="800" height="450"></canvas>
+
+    </div>
+    <div class="mt-5 p-5 chartBox">
+      <div id="chartdiv"></div>
+    </div>
 
   </div>
+
+
+
+
+</div>
 
 
 </div>
@@ -69,7 +89,7 @@
           $("#charts-div").prop('hidden', false);
 
           // console.log(data['tags']);
-           ////////////////////////////////////////////////////////////////////////
+          ////////////////////////////////////////////////////////////////////////
           // doughnut-chart
           tags = data['user_data']['tags'];
           var tag_labels = [];
@@ -144,7 +164,7 @@
                 fontSize: 18,
                 fontColor: "#111",
               },
-              responsive:true,
+              responsive: true,
               maintainAspectRatio: false,
             }
 
@@ -156,99 +176,150 @@
           prob_rating_data = []
           max_rating_data = 0;
           prob_ratings = data['user_data']['prob_rating']
-          for(var i=0;i<prob_ratings.length;i++)
-          {
+          for (var i = 0; i < prob_ratings.length; i++) {
             prob_rating_labels.push(prob_ratings[i]['rating']);
             prob_rating_data.push(prob_ratings[i]['count']);
-            max_rating_data = Math.max(max_rating_data,prob_ratings[i]['count']);
+            max_rating_data = Math.max(max_rating_data, prob_ratings[i]['count']);
           }
 
           $('#problem_ratings_bar_chart_div').html('<canvas id="problem_ratings_bar_chart" width="800" height="450"></canvas>');
           new Chart(document.getElementById("problem_ratings_bar_chart"), {
-              type: 'bar',
-              data: {
-                labels: prob_rating_labels,
-                datasets: [{
-                  label: 'Solved',
-                  data: prob_rating_data,
-                  backgroundColor: [
-                    '#f44336',
-                    '#E91E63',
-                    '#9C27B0',
-                    '#673AB7',
-                    '#2196F3',
-                    '#009688',
-                    '#8BC34A',
-                    '#CDDC39',
-                    '#FFC107',
-                    '#FF9800',
-                    '#FF5722',
-                    '#795548',
-                    '#607D8B',
-                    '#E65100',
-                    '#827717',
-                    '#004D40',
-                    '#1A237E',
-                    '#6200EA',
-                    '#3F51B5',
-                    '#F50057',
-                    '#304FFE',
-                    '#b71c1c',
-                    '#e6194b',
-                    '#3cb44b',
-                    '#ffe119',
-                    '#4363d8',
-                    '#f58231',
-                    '#911eb4',
-                    '#46f0f0',
-                    '#f032e6',
-                    '#bcf60c',
-                    '#fabebe',
-                    '#008080',
-                    '#e6beff',
-                    '#9a6324',
-                    '#fffac8',
-                    '#800000',
-                    '#aaffc3',
-                    '#808000',
-                    '#ffd8b1',
-                    '#000075',
-                    '#808080',
-                    '#ffffff',
-                    '#000000',
-                  ],
-                }]
+            type: 'bar',
+            data: {
+              labels: prob_rating_labels,
+              datasets: [{
+                label: 'Solved',
+                data: prob_rating_data,
+                backgroundColor: [
+                  '#f44336',
+                  '#E91E63',
+                  '#9C27B0',
+                  '#673AB7',
+                  '#2196F3',
+                  '#009688',
+                  '#8BC34A',
+                  '#CDDC39',
+                  '#FFC107',
+                  '#FF9800',
+                  '#FF5722',
+                  '#795548',
+                  '#607D8B',
+                  '#E65100',
+                  '#827717',
+                  '#004D40',
+                  '#1A237E',
+                  '#6200EA',
+                  '#3F51B5',
+                  '#F50057',
+                  '#304FFE',
+                  '#b71c1c',
+                  '#e6194b',
+                  '#3cb44b',
+                  '#ffe119',
+                  '#4363d8',
+                  '#f58231',
+                  '#911eb4',
+                  '#46f0f0',
+                  '#f032e6',
+                  '#bcf60c',
+                  '#fabebe',
+                  '#008080',
+                  '#e6beff',
+                  '#9a6324',
+                  '#fffac8',
+                  '#800000',
+                  '#aaffc3',
+                  '#808000',
+                  '#ffd8b1',
+                  '#000075',
+                  '#808080',
+                  '#ffffff',
+                  '#000000',
+                ],
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              title: {
+                display: true,
+                position: "top",
+                text: "Problem Ratings",
+                fontSize: 18,
+                fontColor: "#111"
               },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                title: {
-                  display: true,
-                  position: "top",
-                  text: "Problem Ratings",
-                  fontSize: 18,
-                  fontColor: "#111"
-                },
-                legend: {
-                  display: true,
-                  position: "bottom",
-                  labels: {
-                    fontColor: "#333",
-                    fontSize: 16
-                  }
-                },
-                scales: {
-                  yAxes: [{
-                    ticks: {
-                      min: 0,
-                      max:max_rating_data+ Math.round(Math.min(max_rating_data/5,5)),
-                    }
-                  }, ]
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  fontColor: "#333",
+                  fontSize: 16
                 }
+              },
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    min: 0,
+                    max: max_rating_data + Math.round(Math.min(max_rating_data / 5, 5)),
+                  }
+                }, ]
               }
-              ////////////////////////////////////////////////////////////////////////
+            }
 
+          });
+
+          ////////////////////////////////////////////////////////////////////////
+          // adding 3D Pie Chart for verdicts
+          v_data = data['user_data']['verdicts']
+          console.log(v_data);
+
+          am4core.ready(function() {
+
+            // Themes begin
+            am4core.useTheme(am4themes_material);
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            var chart = am4core.create("chartdiv", am4charts.PieChart3D);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            var title = chart.titles.create();
+            title.text = "Verdicts";
+            title.fontSize = 20;
+            title.marginBottom = 30;
+            title.fontWeight = 'bolder'
+            chart.legend = new am4charts.Legend();
+            // Responsive
+            chart.responsive.enabled = true;
+            chart.responsive.rules.push({
+              relevant: function(target) {
+                if (target.pixelWidth <= 600) {
+                  return true;
+                }
+                return false;
+              },
+              state: function(target, stateId) {
+                if (target instanceof am4charts.PieSeries) {
+                  var state = target.states.create(stateId);
+
+                  var labelState = target.labels.template.states.create(stateId);
+                  labelState.properties.disabled = true;
+
+                  var tickState = target.ticks.template.states.create(stateId);
+                  tickState.properties.disabled = true;
+                  return state;
+                }
+
+                return null;
+              }
             });
+            chart.data = v_data;
+            var series = chart.series.push(new am4charts.PieSeries3D());
+            series.dataFields.value = "count";
+            series.dataFields.category = "verdict";
+            $('rect').first().parent().parent().remove()
+            $('rect').last().parent().parent().remove()
+
+          }); // end am4core.ready()
 
         } else {
           console.log('error');
@@ -257,7 +328,6 @@
     });
 
   });
-
 </script>
 
 
