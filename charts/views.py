@@ -292,7 +292,7 @@ def get_both_user_ratings(request):
                 """
                 data['line_chart_data_list'] = line_chart_data_list
                 data['success'] = True
-    print(result2)
+
     return JsonResponse(data)
 
 
@@ -383,4 +383,70 @@ def get_Rating(request) :
     else:
         data['success'] = False
 
+    return JsonResponse(data)
+
+def get_comparison(request) :
+    data = dict()
+    if request.method == 'GET' and request.is_ajax():
+        handle = request.GET.get('handle')
+        handle2 = request.GET.get('user2_handle')
+        data['handle'] = handle
+        data['handle2'] = handle2
+        url1 = "https://codeforces.com/api/user.status?handle={}".format(handle)
+        url2 = "https://codeforces.com/api/user.status?handle={}".format(handle2)
+        r = requests.get(url1)
+        r2 = requests.get(url2)
+        if r.status_code == 200 and r2.status_code == 200 :
+            json_data = r.json()
+            json_data2 = r2.json()
+            if json_data['status']=="OK" and json_data2['status']=="OK" :
+                User1 = json_data['result']
+                User2 = json_data['result']
+                result1 = json_data["result"]
+                result2 = json_data2["result"]
+                u1 = dict()
+                u2 = dict()
+                min_rating = 10000
+                max_rating = 0
+                #u1 and u2 are dicts which will hold number of correctly solved problems of each tag
+                s = 'rating'
+                for x in result1:
+
+                    if x['verdict']=='OK' and s in x['problem'].keys():
+                        prob_rate = x['problem']['rating']
+                        min_rating = min(min_rating,prob_rate)
+                        max_rating = max(max_rating,prob_rate)
+                        if prob_rate in u1.keys():
+                            u1[prob_rate] = u1[prob_rate] + 1
+                        else :
+                            u1[prob_rate] = 1
+
+
+                for x in result2:
+                    if x['verdict']=='OK' and s in x['problem'].keys():
+                        prob_rate = x['problem']['rating']
+                        min_rating = min(min_rating,prob_rate)
+                        max_rating = max(max_rating,prob_rate)
+                        if prob_rate in u2.keys():
+                            u2[prob_rate] = u2[prob_rate] + 1
+                        else :
+                            u2[prob_rate] = 1
+
+                problem_ratings = []
+
+                i = min_rating
+                while i <= max_rating :
+                    if i in u1.keys() or u2.keys() :
+                        x = 0
+                        y=0
+                        if i in u1.keys():
+                            x = u1[i]
+
+                        if i in u2.keys():
+                            y = u2[i]
+
+                        problem_ratings.append({'rating':i,'user1':x,'user2':y})
+                    i = i + 100
+                data['success'] = True
+                data['problem_ratings'] = problem_ratings
     return JsonResponse(data)
