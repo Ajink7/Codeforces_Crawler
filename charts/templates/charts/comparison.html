@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/material.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+<style media="screen">
+  #myChart {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: white;
+  }
+
+  canvas {
+    margin: auto;
+    overflow: scroll;
+  }
+
+  #line-chart {
+    width: 100%;
+    height: 50px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: white;
+  }
+  #chartdivlines {
+    width: 100%;
+    height: 500px;
+  }
+
+ </style>
+
+
+{% endblock %}
+
+{% block content %}
+
+
+
+
+<div class="pb-5" style="background:#f5f5f5;">
+  <div class="container" >
+    <br>
+    <br>
+
+    <div class="form-control">
+      <label for="handle">Enter First Handle</label>
+      <input type="text" name="" value="" id="handle">
+      <label for="user2_handle">Enter Second Handle</label>
+      <input type="text" name="" id="user2_handle">
+
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="button"  class = "btn btn-primary" id="submitbutton">Submit</button>
+    <br>
+  </div>
+  <div class="mt-5 p-5 chartBox">
+    <div id = "charts-div" class="container text-center" hidden>
+
+   <canvas id="myChart" width="40" height="40"></canvas>
+   <br>
+   <br>
+
+   <canvas id="line-chart" width="40" height="40"></canvas>
+   <br>
+   <br>
+   <div class="jumbotron">
+     <table id="table" class='table' align = "center" border="1px"></table>
+   </div>
+   <table id='rank-table' align = 'center' border = '1px'>
+
+   </table>
+   <div id="chartdivlines"></div>
+
+    </div>
+  </div>
+
+</div>
+
+
+
+
+ <script>
+   $('#submitbutton').click(function() {
+     handle = $('#handle').val()
+     handle2 = $('#user2_handle').val()
+
+     $.ajax({
+       url: '/charts/getComparison',
+       data: {
+         'handle': handle ,
+         'user2_handle':handle2
+       },
+       type: 'get',
+       dataType: 'json',
+       beforeSend: function() {
+         // alert('before send');
+       },
+       success : function(data){
+         if(data.success)
+         {
+             console.log("successss")
+             $("#charts-div").prop('hidden', false);
+             var Rating1 = data['Rating1']
+             var Rating2 = data['Rating2']
+             var Rating1list = data['User1_Ratings']
+             var Ratinglist2 = data['User2_Ratings']
+             var Contests = data['Contests']
+             var Ranks = data["Common_cont"]
+             var ctx = document.getElementById('myChart').getContext('2d');
+             var myChart = new Chart(ctx, {
+               type: 'bar',
+               data: {
+                 labels: [handle, handle2],
+                 datasets: [{
+                   label: 'Maximum Ratings of the coders',
+                   data: [Rating1, Rating2],
+                   backgroundColor: [
+                   'rgba(255, 0, 0, 1)',
+                   'rgba(0, 0, 255, 1)',
+
+                   ],
+                   borderColor: [
+                   'rgba(255, 99, 132, 1)',
+                   'rgba(0,0,0,1)',
+
+                   ],
+                   borderWidth: 1
+                 }]
+                },
+                  options: {
+
+                    scales: {
+                      xAxes: [{
+                        barPercentage : 0.3
+                      }],
+                      yAxes: [{
+                        ticks: {
+                          beginAtZero: true
+                        }
+                      }]
+                    }
+                  }
+                });
+
+                new Chart(document.getElementById("line-chart"), {
+                  type: 'line',
+                  data: {
+                    labels: Contests,
+                    datasets: [{
+                      data: Rating1list,
+                      label: handle,
+                      borderColor: "#3e95cd",
+                      fill: false
+                    }, {
+                      data: Ratinglist2,
+                      label: handle2,
+                      borderColor: "#8e5ea2",
+                      fill: false
+                    },
+                    ]
+                  },
+                  options: {
+                    responsive: true,
+
+                    title: {
+                      display: true,
+                      text: 'Rating variation with contests'
+                    }
+                  }
+                });
+
+                var table = document.getElementById("table");
+                table.innerHTML += "<tr class='bg-info'><th>Contest ID</th><th> "+ handle + " Ranks </th><th> " + handle2 + " Ranks </th></tr>";
+
+                for(var i=0;i<Ranks.length;i++)
+                {
+                  var s = "<tr class = 'bg-light'><td>" + (data["ContestId"][i]) + " </td><td> "+ (data["Common_cont"][i][0]) + " </td><td> "+ (data["Common_cont"][i][1]) +" </td> </tr>";
+                  table.innerHTML += s ;
+
+                }
+                var rank_table = document.getElementById("rank-table")
+                rank_table.innerHTML += "<tr class='bg-info'><th>Category</th><th> "+ handle + "</th><th> " + handle2 + "</th></tr>";
+                var s = "<tr class = 'bg-light'><td>" + " Best Rank " + " </td><td> "+ (data["User1_best_rank"]) + " </td><td> "+ (data["User2_best_rank"]) +" </td> </tr>";
+                rank_table.innerHTML += s;
+                s = "<tr class = 'bg-light'><td>" + " Worst Rank " + " </td><td> "+ (data["User1_worst_rank"]) + " </td><td> "+ (data["User2_worst_rank"]) +" </td> </tr>";
+                rank_table.innerHTML += s;
+              }
+              else {
+                alert("You have entered wrong handles")
+              }
+
+
+            }
+
+          });
+
+
+          $.ajax({
+            url: '/charts/getGraphs',
+            data: {
+              'handle': handle ,
+              'user2_handle':handle2
+            },
+            type: 'get',
+            dataType: 'json',
+            beforeSend: function() {
+              // alert('before send');
+            },
+            success : function(data){
+              if(data.success){
+
+
+                var Line_data = data['line_chart_data_list']
+
+
+
+
+                am4core.ready(function() {
+
+                // Themes begin
+                am4core.useTheme(am4themes_animated);
+                // Themes end
+
+                // Create chart instance
+                var chart = am4core.create("chartdivlines", am4charts.XYChart);
+
+                //
+
+                // Increase contrast by taking evey second color
+                chart.colors.step = 2;
+
+                // Add data
+                chart.data = Line_data;
+
+                // Create axes
+                var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                dateAxis.renderer.minGridDistance = 50;
+
+                // Create series
+                function createAxisAndSeries(field, name, opposite, bullet) {
+                  var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                  if(chart.yAxes.indexOf(valueAxis) != 0){
+                  	valueAxis.syncWithAxis = chart.yAxes.getIndex(0);
+                  }
+
+                  var series = chart.series.push(new am4charts.LineSeries());
+                  series.dataFields.valueY = field;
+                  series.dataFields.dateX = "date";
+                  series.strokeWidth = 2;
+                  series.yAxis = valueAxis;
+                  series.name = name;
+                  series.tooltipText = "{name}: [bold]{valueY}[/]";
+                  series.tensionX = 0.8;
+                  series.showOnInit = true;
+
+                  var interfaceColors = new am4core.InterfaceColorSet();
+
+                  switch(bullet) {
+                    case "triangle":
+                      var bullet = series.bullets.push(new am4charts.Bullet());
+                      bullet.width = 8;
+                      bullet.height = 8;
+                      bullet.horizontalCenter = "middle";
+                      bullet.verticalCenter = "middle";
+
+                      var triangle = bullet.createChild(am4core.Triangle);
+                      triangle.stroke = interfaceColors.getFor("background");
+                      triangle.strokeWidth = 2;
+                      triangle.direction = "top";
+                      triangle.width = 8;
+                      triangle.height = 8;
+                      break;
+
+                  }
+
+                  valueAxis.renderer.line.strokeOpacity = 1;
+                  valueAxis.renderer.line.strokeWidth = 2;
+                  valueAxis.renderer.line.stroke = series.stroke;
+                  valueAxis.renderer.labels.template.fill = series.stroke;
+                  valueAxis.renderer.opposite = opposite;
+                }
+
+                createAxisAndSeries("rating1", handle, false, "circle");
+                createAxisAndSeries("rating2", handle2, true, "triangle");
+
+                // Add legend
+                chart.legend = new am4charts.Legend();
+
+                // Add cursor
+                chart.cursor = new am4charts.XYCursor();
+
+                // generate some random data, quite different range
+                function generateChartData() {
+                  var chartData = [];
+                  var firstDate = new Date();
+                  firstDate.setDate(firstDate.getDate() - 100);
+                  firstDate.setHours(0, 0, 0, 0);
+
+                  var visits = 1600;
+                  var hits = 2900;
+                  var views = 8700;
+
+                  for (var i = 0; i < 15; i++) {
+                    // we create date objects here. In your data, you can have date strings
+                    // and then set format of your dates using chart.dataDateFormat property,
+                    // however when possible, use date objects, as this will speed up chart rendering.
+                    var newDate = new Date(firstDate);
+                    newDate.setDate(newDate.getDate() + i);
+
+                    visits += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+                    hits += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+                    views += Math.round((Math.random()<0.5?1:-1)*Math.random()*10);
+
+                    chartData.push({
+                      date: newDate,
+                      visits: visits,
+
+                      views: views
+                    });
+                  }
+                  return chartData;
+                }
+
+                }); // end am4core.ready()
+
+
+
+
+
+              }
+
+            },
+          });
+
+   });
+
+
+
+</script>
+
+
+
+
+
+{% endblock %}
