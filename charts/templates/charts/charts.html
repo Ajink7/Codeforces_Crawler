@@ -29,19 +29,30 @@
     width: 100%;
     height: 700px;
   }
+
+  body {
+    background: #f5f5f5;
+  }
 </style>
 {% endblock %}
 {% block content %}
-<div class="pb-5" style="background:#f5f5f5;">
+
+
+
+
+<div class="pb-5" style="">
   <br>
   <br>
 
   <div class="container p-5" id="handle-form-div">
     <div class="form-group">
       <label for="handle">Codeforces user handle</label>
-      <input autofocus placeholder="Username" type="text" name="" value="" class="form-control" id="handle">
+      <div class="form-inline">
+        <input autofocus placeholder="Username" type="text" name="" value="" class="form-control" id="handle">
+        <button type="button" name="button" class="btn btn-primary" id="submitButton">Submit</button>
+      </div>
     </div>
-    <button type="button" name="button" class="btn btn-bg btn-warning" id="submitButton">Submit</button>
+
 
   </div>
 
@@ -72,6 +83,9 @@
 
 
 </div>
+<div class="loader" hidden>
+</div>
+
 
 
 </div>
@@ -80,6 +94,9 @@
   $('#submitButton').click(function() {
     // alert('this is called!');
     handle = $('#handle').val()
+    if(handle=="")return;
+    $("#submitButton").prop("disabled",true);
+    $('.loader').prop('hidden',false);
     $.ajax({
       url: '/charts/getData',
       data: {
@@ -332,122 +349,125 @@
         } else {
           console.log('error');
         }
+
+            $.ajax({
+              url: '/charts/getData/ratings',
+              data: {
+                'handle': handle
+              },
+              type: 'get',
+              dataType: 'json',
+              beforeSend: function() {
+                // alert('before send');
+              },
+              success: function(data) {
+                console.log(data['status_code']);
+                if (data.success) {
+                  console.log(data);
+
+                  ////////////////////////////////////////////////////////////////////////
+                  line_chart_data_list = data['line_chart_data_list']
+                  console.log(line_chart_data_list)
+                  am4core.ready(function() {
+
+                    // Themes begin
+                    am4core.useTheme(am4themes_animated);
+                    // Themes end
+
+                    // Create chart instance
+                    var chart = am4core.create("rating_line_chartdiv", am4charts.XYChart);
+                    chart.paddingRight = 20;
+                    var title = chart.titles.create();
+                    title.text = "User Rating";
+                    title.fontSize = 20;
+                    title.marginBottom = 30;
+                    title.fontWeight = 'bolder'
+
+                    // Add data
+                    chart.data = line_chart_data_list;
+
+                    // Create axes
+                    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+                    categoryAxis.dataFields.category = "date";
+                    categoryAxis.renderer.minGridDistance = 50;
+                    categoryAxis.renderer.grid.template.location = 0.5;
+                    categoryAxis.startLocation = 0.5;
+                    categoryAxis.endLocation = 0.5;
+
+
+                    categoryAxis.events.on("sizechanged", function(ev) {
+                      var axis = ev.target;
+                      var cellWidth = axis.pixelWidth / (axis.endIndex - axis.startIndex);
+                      if (cellWidth < axis.renderer.labels.template.maxWidth) {
+                        axis.renderer.labels.template.rotation = -45;
+                        axis.renderer.labels.template.horizontalCenter = "right";
+                        axis.renderer.labels.template.verticalCenter = "middle";
+                      } else {
+                        axis.renderer.labels.template.rotation = -45;
+                        axis.renderer.labels.template.horizontalCenter = "middle";
+                        axis.renderer.labels.template.verticalCenter = "top";
+                      }
+                    });
+                    // Create value axis
+                    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                    valueAxis.baseValue = 0;
+
+                    // Create series
+                    var series = chart.series.push(new am4charts.LineSeries());
+                    series.dataFields.valueY = "rating";
+                    series.dataFields.categoryX = "date";
+                    series.dataFields.contesName = 'contestName';
+                    series.dataFields.ratingChange = 'ratingChange';
+                    series.dataFields.rank = 'rank';
+                    series.strokeWidth = 2;
+                    series.tensionX = 0.77;
+
+                    var bullet = series.bullets.push(new am4charts.CircleBullet());
+                    series.heatRules.push({
+                      target: bullet.circle,
+                      min: 5,
+                      max: 20,
+                      property: "radius"
+                    });
+
+                    // bullet is added because we add tooltip to a bullet for it to change color
+                    var bullet = series.bullets.push(new am4charts.Bullet());
+                    bullet.tooltipText = "= {valueY} ({ratingChange}) \n{contestName}\nrank: {rank}";
+
+                    bullet.adapter.add("fill", function(fill, target) {
+                      if (target.dataItem.valueY < 0) {
+                        return am4core.color("#FF0000");
+                      }
+                      return fill;
+                    })
+                    var range = valueAxis.createSeriesRange(series);
+                    range.value = 0;
+                    range.endValue = -1000;
+                    range.contents.stroke = am4core.color("#FF0000");
+                    range.contents.fill = range.contents.stroke;
+
+                    // Add scrollbar
+                    var scrollbarX = new am4charts.XYChartScrollbar();
+                    scrollbarX.series.push(series);
+                    chart.scrollbarX = scrollbarX;
+                    chart.scrollbarX.marginBottom = 70;
+                    chart.cursor = new am4charts.XYCursor();
+                    $('#rating_line_chartdiv rect').last().parent().parent().remove()
+
+                  }); // end am4core.ready()
+
+
+
+                } else {
+                  console.log('error!');
+                }
+                $('.loader').prop('hidden',true);
+                $("#submitButton").prop("disabled",false);
+              },
+            });
       },
     });
 
-    $.ajax({
-      url: '/charts/getData/ratings',
-      data: {
-        'handle': handle
-      },
-      type: 'get',
-      dataType: 'json',
-      beforeSend: function() {
-        // alert('before send');
-      },
-      success: function(data) {
-        console.log(data['status_code']);
-        if (data.success) {
-          console.log(data);
-
-          ////////////////////////////////////////////////////////////////////////
-          line_chart_data_list = data['line_chart_data_list']
-          console.log(line_chart_data_list)
-          am4core.ready(function() {
-
-            // Themes begin
-            am4core.useTheme(am4themes_animated);
-            // Themes end
-
-            // Create chart instance
-            var chart = am4core.create("rating_line_chartdiv", am4charts.XYChart);
-            chart.paddingRight = 20;
-            var title = chart.titles.create();
-            title.text = "User Rating";
-            title.fontSize = 20;
-            title.marginBottom = 30;
-            title.fontWeight = 'bolder'
-
-            // Add data
-            chart.data = line_chart_data_list;
-
-            // Create axes
-            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-            categoryAxis.dataFields.category = "date";
-            categoryAxis.renderer.minGridDistance = 50;
-            categoryAxis.renderer.grid.template.location = 0.5;
-            categoryAxis.startLocation = 0.5;
-            categoryAxis.endLocation = 0.5;
-
-
-            categoryAxis.events.on("sizechanged", function(ev) {
-              var axis = ev.target;
-              var cellWidth = axis.pixelWidth / (axis.endIndex - axis.startIndex);
-              if (cellWidth < axis.renderer.labels.template.maxWidth) {
-                axis.renderer.labels.template.rotation = -45;
-                axis.renderer.labels.template.horizontalCenter = "right";
-                axis.renderer.labels.template.verticalCenter = "middle";
-              } else {
-                axis.renderer.labels.template.rotation = -45;
-                axis.renderer.labels.template.horizontalCenter = "middle";
-                axis.renderer.labels.template.verticalCenter = "top";
-              }
-            });
-            // Create value axis
-            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis.baseValue = 0;
-
-            // Create series
-            var series = chart.series.push(new am4charts.LineSeries());
-            series.dataFields.valueY = "rating";
-            series.dataFields.categoryX = "date";
-            series.dataFields.contesName = 'contestName';
-            series.dataFields.ratingChange = 'ratingChange';
-            series.dataFields.rank = 'rank';
-            series.strokeWidth = 2;
-            series.tensionX = 0.77;
-
-            var bullet = series.bullets.push(new am4charts.CircleBullet());
-            series.heatRules.push({
-              target: bullet.circle,
-              min: 5,
-              max: 20,
-              property: "radius"
-            });
-
-            // bullet is added because we add tooltip to a bullet for it to change color
-            var bullet = series.bullets.push(new am4charts.Bullet());
-            bullet.tooltipText = "= {valueY} ({ratingChange}) \n{contestName}\nrank: {rank}";
-
-            bullet.adapter.add("fill", function(fill, target) {
-              if (target.dataItem.valueY < 0) {
-                return am4core.color("#FF0000");
-              }
-              return fill;
-            })
-            var range = valueAxis.createSeriesRange(series);
-            range.value = 0;
-            range.endValue = -1000;
-            range.contents.stroke = am4core.color("#FF0000");
-            range.contents.fill = range.contents.stroke;
-
-            // Add scrollbar
-            var scrollbarX = new am4charts.XYChartScrollbar();
-            scrollbarX.series.push(series);
-            chart.scrollbarX = scrollbarX;
-            chart.scrollbarX.marginBottom = 70;
-            chart.cursor = new am4charts.XYCursor();
-            $('#rating_line_chartdiv rect').last().parent().parent().remove()
-
-          }); // end am4core.ready()
-
-
-
-        } else {
-          console.log('error!');
-        }
-      },
-    });
   });
 </script>
 

@@ -1,58 +1,75 @@
 {% extends 'base.html' %}
 {% block content %}
-  <br>
-  <br>
+<br>
+<br>
+<div class="container">
+
   <h1>Fill out the Following form to get the solution</h1>
 
-  <div class="jumbotron">
+  <div class="">
 
-  <form  method="post" action="{% url 'solutions:user_solution' %}" >
-    {% csrf_token %}
-    <label for="contestno">Contest Code</label>
-    <input type="text" name="contestno" value="">
-    <label for="username">User Account</label>
-    <input type="username" name="username" value="">
-    <label for="problem">Problem Code</label>
-    <input type="text" name="problem" value="">
-    <input type="submit" name="" value="submissions">
-  </form>
+    <form method="post" action="{% url 'solutions:user_solution' %}">
+      {% csrf_token %}
+      <div class="">
 
-</div>
-<div class="jumbotron">
-  <table class='table'>
-    <tr class='bg-info'>
-      <th>ID</th>
-      <th>Date and Time</th>
-      <th>User</th>
-      <th>Result</th>
-      <th>Time</th>
-      <th>Memory Used</th>
-      <th>Language</th>
-      <th>Solution</th>
-    </tr>
-    {%if success%}
-    {% for  x in the_list %}
-    <tr class = 'bg-light'>
-      {% for key , value in x.items %}
+        <div class=" md-form">
+          <input type="text" name="contestno" id="contestno" class="form-control">
+          <label for="contestno">Contest Code</label>
+        </div>
+        <div class=" md-form">
+          <input type="text" name="username" id="username" class="form-control">
+          <label for="username">User Account</label>
+        </div>
+        <div class=" md-form">
+          <input type="text" name="problem" id="problem" class="form-control">
+          <label for="problem">Problem Code</label>
+        </div>
+      </div>
+
+      <div class="float-right">
+        <input type="submit" name="" class="btn btn-primary" value="Get submissions">
+      </div>
+
+    </form>
+
+  </div>
+  <div class="">
+    <table class='table'>
+      <tr class='bg-info'>
+        <th>ID</th>
+        <th>Date and Time</th>
+        <th>User</th>
+        <th>Result</th>
+        <th>Time</th>
+        <th>Memory Used</th>
+        <th>Language</th>
+        <th>Solution</th>
+      </tr>
+      {%if success%}
+      {% for  x in the_list %}
+      <tr class='bg-light'>
+        {% for key , value in x.items %}
         {% if key == 7 %}
-          <td> <a href="{{ value }}">VIEW</a> </td>
+        <td> <a href="{{ value }}">VIEW</a> </td>
 
         {% else %}
-            <td>{{ value }}</td>
+        <td>{{ value }}</td>
 
         {% endif %}
 
+        {% endfor %}
+      </tr>
       {% endfor %}
-    </tr>
-    {% endfor %}
-    {%endif%}
-  </table>
-  {%if not success%}
-  <div class="text-center">
-    <p>No result found! Please try again.</p>
-  </div>
-  {% endif %}
+      {%endif%}
+    </table>
+    {%if not success%}
+    <div class="text-center">
+      <p>No result found! Please try again.</p>
+    </div>
+    {% endif %}
 
+  </div>
 </div>
+
 
 {% endblock %}
