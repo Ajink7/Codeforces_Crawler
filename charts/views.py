@@ -232,8 +232,8 @@ def get_both_user_ratings(request):
                         day = datetime.datetime.utcfromtimestamp(time2).day
                         year = datetime.datetime.utcfromtimestamp(time2).year
                         time_str = calendar.month_abbr[month] + " " + str(day) + " "+str(year)
-                        old1 = contest2['newRating']
-                        new1 = contest2['newRating']
+                        old2 = contest2['newRating']
+                        new2 = contest2['newRating']
                         time_list.append(time_str)
                         line_chart_data_list.append({'date':time_str,'rating1':old1,'rating2':old2,})
                         rating_list2.append(old2)
@@ -291,6 +291,8 @@ def get_both_user_ratings(request):
                 data['contests_list'] = contests_list
                 """
                 data['line_chart_data_list'] = line_chart_data_list
+                #print(line_chart_data_list)
+                print(data)
                 data['success'] = True
 
     return JsonResponse(data)
@@ -319,6 +321,7 @@ def get_Rating(request) :
         data['handle'] = handle
         data['handle2'] = handle2
         data["ContestId"] = []
+        data["ContestName"] = []
         url = "https://codeforces.com/api/user.rating?handle={}".format(handle)
         url2 = "https://codeforces.com/api/user.rating?handle={}".format(handle2)
         r = requests.get(url)
@@ -352,6 +355,7 @@ def get_Rating(request) :
                         if x["contestId"]== y["contestId"]:
                             Common_cont.append([x["rank"],y["rank"]])
                             data["ContestId"].append(x["contestId"])
+                            data["ContestName"].append(x["contestName"])
                     #recentcontestid1 = max(recentcontestid1,x["contestId"])
                     All_Ratings1.append(x["newRating"])
                 for x in result2 :
@@ -375,6 +379,8 @@ def get_Rating(request) :
                 for i in range(1,MaxContestNo + 1):
                     data['Contests'].append(i)
                 #print(data['Common_cont'])
+                print(data)
+
 
             else :
                 data['success'] = False

@@ -12,6 +12,10 @@
 <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
 
 <style media="screen">
+  #chartdivbar {
+  width: 100%;
+  height: 500px;
+}
   #solved-compare {
     width: 100%;
     height: 500px;
@@ -65,8 +69,13 @@
     <br>
   </div>
   <div class="mt-5 p-5 chartBox">
+
     <div id = "charts-div" class="container text-center" hidden>
 
+
+      <div id="chartdivbar" align='center'>
+
+      </div>
    <canvas id="myChart" width="40" height="40"></canvas>
    <br>
    <br>
@@ -91,7 +100,6 @@
   </div>
 
 </div>
-
 
 
 
@@ -123,6 +131,75 @@
              var Contests = data['Contests']
              var Ranks = data["Common_cont"]
              var ctx = document.getElementById('myChart').getContext('2d');
+
+
+
+
+             am4core.ready(function() {
+
+               // Themes begin
+               am4core.useTheme(am4themes_animated);
+               // Themes end
+
+               // Create chart instance
+               var chart = am4core.create("chartdivbar", am4charts.XYChart);
+
+               // Add data
+               chart.data = [{
+                 "user": handle,
+                 "rating": Rating1
+               },
+               {
+                 "user": handle2,
+                 "rating": Rating2
+               },];
+
+               // Create axes
+
+               var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+               categoryAxis.dataFields.category = "user";
+               categoryAxis.renderer.grid.template.location = 0;
+               categoryAxis.renderer.minGridDistance = 30;
+
+               categoryAxis.renderer.labels.template.adapter.add("dy", function(dy, target) {
+                 if (target.dataItem && target.dataItem.index & 2 == 2) {
+                   return dy + 25;
+                 }
+                 return dy;
+               });
+
+               var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+               // Create series
+                var series = chart.series.push(new am4charts.ColumnSeries());
+                series.dataFields.valueY = "rating";
+                series.dataFields.categoryX = "user";
+                series.name = "rating";
+                series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+                series.columns.template.fillOpacity = .8;
+
+                var columnTemplate = series.columns.template;
+                columnTemplate.strokeWidth = 1;
+                columnTemplate.strokeOpacity = 1;
+
+              }); // end am4core.ready()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
              var myChart = new Chart(ctx, {
                type: 'bar',
                data: {
@@ -186,15 +263,19 @@
                 });
 
                 var table = document.getElementById("table");
+                table.innerHTML = ""
                 table.innerHTML += "<tr class='bg-info'><th>Contest ID</th><th> "+ handle + " Ranks </th><th> " + handle2 + " Ranks </th></tr>";
-
+                console.log(data)
                 for(var i=0;i<Ranks.length;i++)
                 {
-                  var s = "<tr class = 'bg-light'><td>" + (data["ContestId"][i]) + " </td><td> "+ (data["Common_cont"][i][0]) + " </td><td> "+ (data["Common_cont"][i][1]) +" </td> </tr>";
+                  var s1 = "https://codeforces.com/contest/" + data['ContestId'][i]
+                  var s2 = "<a href=" + s1 + ">" + data['ContestName'][i] + "</a>"
+                  var s = "<tr class = 'bg-light'><td>" + s2 + " </td><td> "+ (data["Common_cont"][i][0]) + " </td><td> "+ (data["Common_cont"][i][1]) +" </td> </tr>";
                   table.innerHTML += s ;
 
                 }
                 var rank_table = document.getElementById("rank-table")
+                rank_table.innerHTML = ""
                 rank_table.innerHTML += "<tr class='bg-info'><th>Category</th><th> "+ handle + "</th><th> " + handle2 + "</th></tr>";
                 var s = "<tr class = 'bg-light'><td>" + " Best Rank " + " </td><td> "+ (data["User1_best_rank"]) + " </td><td> "+ (data["User2_best_rank"]) +" </td> </tr>";
                 rank_table.innerHTML += s;
