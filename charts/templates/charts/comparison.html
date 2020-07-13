@@ -216,7 +216,7 @@
                 var table = document.getElementById("table");
                 table.innerHTML = ""
                 table.innerHTML += "<tr class='bg-info'><th>Contest ID</th><th> "+ handle + " Ranks </th><th> " + handle2 + " Ranks </th></tr>";
-                console.log(data)
+
                 for(var i=0;i<Ranks.length;i++)
                 {
                   var s1 = "https://codeforces.com/contest/" + data['ContestId'][i]
@@ -400,6 +400,20 @@
 
               if(data.success){
 
+
+
+
+                console.log(data);
+
+                var rank_table = document.getElementById("rank-table");
+                var s = "<tr class = 'bg-light'><td>" + " Problems Attempted " + " </td><td> "+ (data["User1_Attempted"]) + " </td><td> "+ (data["User2_Attempted"]) +" </td> </tr>";
+                rank_table.innerHTML += s;
+                 s = "<tr class = 'bg-light'><td>" + " Problems Solved " + " </td><td> "+ (data["User1_Solved"]) + " </td><td> "+ (data["User2_Solved"]) +" </td> </tr>";
+                rank_table.innerHTML += s;
+                s = "<tr class = 'bg-light'><td>" + "Unsolved Problems  " + " </td><td> "+ ((data["User1_Attempted"]) - (data["User1_Solved"])) + " </td><td> "+ ((data["User2_Attempted"]) - (data["User2_Solved"])) +" </td> </tr>";
+                rank_table.innerHTML += s;
+                s = "<tr class = 'bg-light'><td>" + " Submissions per problem " + " </td><td> "+ (data["Submissions_per_prob_1"]) + " </td><td> "+ (data["Submissions_per_prob_2"]) +" </td> </tr>";
+                rank_table.innerHTML += s;
                 var problem_solved = data['problem_ratings']
                 am4core.ready(function() {
 

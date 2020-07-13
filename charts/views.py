@@ -13,6 +13,8 @@ import json
 from operator import itemgetter
 import datetime,calendar
 # Create your views here.
+import decimal
+
 
 class Userdata:
     username = str()
@@ -292,7 +294,7 @@ def get_both_user_ratings(request):
                 """
                 data['line_chart_data_list'] = line_chart_data_list
                 #print(line_chart_data_list)
-                print(data)
+
                 data['success'] = True
 
     return JsonResponse(data)
@@ -379,7 +381,7 @@ def get_Rating(request) :
                 for i in range(1,MaxContestNo + 1):
                     data['Contests'].append(i)
                 #print(data['Common_cont'])
-                print(data)
+
 
 
             else :
@@ -455,4 +457,45 @@ def get_comparison(request) :
                     i = i + 100
                 data['success'] = True
                 data['problem_ratings'] = problem_ratings
+
+                attempted1 = dict()
+                attempted2 = dict()
+                for x in result1:
+                    if x['problem']['name'] in attempted1.keys():
+                        if x['verdict']=='OK':
+                            attempted1[x['problem']['name']] = 1
+                        else:
+                            attempted1[x['problem']['name']] = max(attempted1[x['problem']['name']],0)
+                    else:
+                        if x['verdict']=='OK':
+                            attempted1[x['problem']['name']] = 1
+                        else:
+                            attempted1[x['problem']['name']] = 0
+
+                for x in result2:
+                    if x['problem']['name'] in attempted2.keys():
+                        if x['verdict']=='OK':
+                            attempted2[x['problem']['name']] = 1
+                        else:
+                            attempted2[x['problem']['name']] = max(attempted2[x['problem']['name']],0)
+                    else:
+                        if x['verdict']=='OK':
+                            attempted2[x['problem']['name']] = 1
+                        else:
+                            attempted2[x['problem']['name']] = 0
+
+                data['User1_Attempted'] = len(attempted1)
+                i = 0
+                for x in attempted1.values():
+                    i = i + int(x)
+                data['User1_Solved'] = i
+
+                data['User2_Attempted'] = len(attempted2)
+                i = 0
+                for x in attempted2.values():
+                    i = i + int(x)
+                data['User2_Solved'] = i
+                data['Submissions_per_prob_1'] = round(len(result1)/data['User1_Attempted'],3)
+                data['Submissions_per_prob_2'] = round(len(result2)/data['User2_Attempted'],3)
+
     return JsonResponse(data)
