@@ -59,9 +59,17 @@ def get_data(request):
             json_data  = r.json()
             if json_data['status']=='OK':
                 result = json_data['result']
+                # print(result)
                 user = Userdata()
                 user.total_submission = len(result)
                 user.accepted = 0
+                # to get total solved and total tried problems
+                solved_probs = set()
+                tried_probs = set()
+                # to get unsolved problems
+                unsolved = []
+
+                solved = []
                 level = {}
                 tags = {}
                 verdicts = {}
@@ -70,7 +78,14 @@ def get_data(request):
                         verdicts[submission['verdict']] += 1
                     else:
                         verdicts[submission['verdict']] = 1
+                    tried_probs.add(str(submission['problem']['contestId'])+"-"+submission['problem']['index'])
                     if submission['verdict']=="OK" :
+                        solved_prob = dict()
+                        solved_prob['name'] = str(submission['problem']['contestId'])+"-"+submission['problem']['index']
+                        solved_prob['link'] = "https://codeforces.com/contest/{}/problem/{}".format(submission['problem']['contestId'],submission['problem']['index'])
+                        if solved_prob not in solved:
+                            solved.append(solved_prob)
+                        solved_probs.add(str(submission['problem']['contestId'])+"-"+submission['problem']['index'])
                         user.accepted +=1
                         for y in submission['problem']['tags']:
                             if y in tags:
@@ -86,7 +101,17 @@ def get_data(request):
                                 level[prob_rating]=1
                         except:
                             pass
+                    else:
+                        unsolved_prob = dict()
+                        unsolved_prob['name'] = str(submission['problem']['contestId'])+"-"+submission['problem']['index']
+                        unsolved_prob['link'] = "https://codeforces.com/contest/{}/problem/{}".format(submission['problem']['contestId'],submission['problem']['index'])
+                        if unsolved_prob not in unsolved:
+                            unsolved.append(unsolved_prob)
 
+                unsolved_final = []
+                for prob in unsolved:
+                    if prob['name'] not in solved_probs:
+                        unsolved_final.append(prob)
                 tags_list = []
                 prob_rating_list = []
                 verdicts_list = []
@@ -112,6 +137,13 @@ def get_data(request):
                 user.prob_rating = prob_rating_list
                 user.verdicts = verdicts_list
                 data['user_data'] = user.__dict__
+
+                # user statistics
+                data['tried_probs_count']=len(tried_probs)
+                data['solved_probs_count']=len(solved_probs)
+
+                # unsolved Problems
+                data['unsolved'] = unsolved_final
                 data['success'] = True
 
             else:
@@ -145,9 +177,20 @@ def get_user_ratings(request):
                 rank_list = []
                 time_list = []
                 line_chart_data_list = []
+
+                maxrating=0
+                minrating=5000
+                max_rating_up=0
+                max_rating_down=0
+                best_rank = pow(10,9)
+                worst_rank=1
+                contests_count=len(result)
+
                 for contest in result:
                     contestName = contest['contestName']
                     rank = contest['rank']
+                    best_rank = min(best_rank,rank)
+                    worst_rank = max(worst_rank,rank)
                     time = contest['ratingUpdateTimeSeconds']
 
                     month = datetime.datetime.utcfromtimestamp(time).month
@@ -157,9 +200,15 @@ def get_user_ratings(request):
 
                     oldRating =contest['oldRating']
                     newRating = contest['newRating']
+                    maxrating = max(maxrating,newRating)
+                    minrating = min(minrating,newRating)
                     if oldRating == 0:
                         oldRating = 1500
                     ratingChange = newRating-oldRating
+                    if(ratingChange>0):
+                        max_rating_up = max(max_rating_up,ratingChange)
+                    if(ratingChange<0):
+                        max_rating_down = min(max_rating_down,ratingChange)
                     if ratingChange>0:
                         ratingChange="+"+str(ratingChange)
                     else:
@@ -176,6 +225,16 @@ def get_user_ratings(request):
                 data['rating_change_list'] = rating_change_list
                 data['contests_list'] = contests_list
                 data['line_chart_data_list'] = line_chart_data_list
+
+                # user statistics
+                data['maxrating']= maxrating
+                data['minrating']= minrating
+                data['max_rating_up'] = max_rating_up
+                data['max_rating_down'] = max_rating_down
+                data['contests_count'] = contests_count
+                data['best_rank'] = best_rank
+                data['worst_rank'] = worst_rank
+                # data collected successfully
                 data['success'] = True
-    print(data)
+    # print(data)
     return JsonResponse(data)

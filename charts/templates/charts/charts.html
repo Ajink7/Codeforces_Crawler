@@ -18,6 +18,8 @@
   canvas {
     margin: auto;
     overflow: scroll;
+    min-height: 450px !important;
+    max-height: 600px !important;
   }
 
   #verdicts-chartdiv {
@@ -32,6 +34,24 @@
 
   body {
     background: #f5f5f5;
+  }
+
+  .unsolved_prob_link {
+    margin: 2px 5px;
+  }
+
+  .unsolved_prob_link:hover {
+    background-color: grey;
+  }
+
+  .vertical-space {
+    width: 100%;
+    height: 20px;
+  }
+  .loader-div {
+    position: absolute;
+    left: 50%;
+
   }
 </style>
 {% endblock %}
@@ -61,16 +81,6 @@
     <h3>Charts</h3>
 
     {% comment %} tutorial for charts.js https://tobiasahlin.com/blog/chartjs-charts-to-get-you-started/#8-grouped-bar-chart {% endcomment %}
-    <div class="mt-5 p-5 chartBox" id="doughnut-chart-div">
-
-      <canvas id="doughnut-chart" width="800" height="450"></canvas>
-
-    </div>
-    <div class="mt-5 p-5 chartBox" id="problem_ratings_bar_chart_div">
-
-      <canvas id="problem_ratings_bar_chart" width="800" height="450"></canvas>
-
-    </div>
     <div class="mt-5 p-5 chartBox">
       <div id="verdicts-chartdiv"></div>
     </div>
@@ -78,15 +88,62 @@
       <div id="rating_line_chartdiv"></div>
     </div>
 
+
+    <div class="mt-5 p-5 chartBox">
+      <div id="user_statistics">
+        <div class="table-responsive" style="border-radius:8px;">
+
+          <table class="table table-borderless table-hover">
+            <thead class="purple white-text">
+              <th scope="col" class="text-center font-weight-bold">Some numbers about</th>
+              <th scope="col" class="text-center username font-weight-bold">Username</th>
+            </thead>
+            <tbody class="table_data">
+              <tr>
+                <th scope="row" class="text-center">1</th>
+                <td class="text-center">Mark</td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-center">1</th>
+                <td class="text-center">Mark</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+    <div class="mt-5 p-5 chartBox" id="doughnut-chart-div">
+    </div>
+    <div class="mt-5 p-5 chartBox" id="problem_ratings_bar_chart_div">
+
+    </div>
+    <div class="mt-5 p-5 chartBox" id="unsolved_probs">
+      <h3>Unsolved</h3>
+      <div class="vertical-space">
+      </div>
+      <p class="unsolved_probs_list text-wrap">
+
+      </p>
+    </div>
   </div>
 
 
-
-</div>
-<div class="loader" hidden>
-</div>
-
-
+  <div class="loader-div" hidden >
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-blue-only">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
@@ -94,9 +151,17 @@
   $('#submitButton').click(function() {
     // alert('this is called!');
     handle = $('#handle').val()
-    if(handle=="")return;
-    $("#submitButton").prop("disabled",true);
-    $('.loader').prop('hidden',false);
+    if (handle == "") return;
+    $('#charts-div').prop('hidden', true);
+    $("#submitButton").prop("disabled", true);
+    $('#doughnut-chart-div').html('<canvas id="doughnut-chart" height="700px"></canvas>');
+    $('#problem_ratings_bar_chart_div').html('<canvas id="problem_ratings_bar_chart" height="700px"></canvas>');
+    $('#verdicts-chartdiv').html('');
+    $('#rating_line_chartdiv').html('');
+    $('#user_statistics .table_data').html('');
+    $('#user_statistics .username').html(handle);
+    $("#unsolved_probs .unsolved_probs_list").html('');
+    $('.loader-div').prop('hidden', false);
     $.ajax({
       url: '/charts/getData',
       data: {
@@ -110,7 +175,33 @@
       success: function(data) {
         if (data.success) {
           console.log("success");
-          $("#charts-div").prop('hidden', false);
+          // show unsolved problems
+          var unsolved_probs = data['unsolved'];
+          for (var i in unsolved_probs) {
+            console.log(unsolved_probs[i]);
+            $("#unsolved_probs .unsolved_probs_list").append(`
+              <span class="unsolved_prob_link">
+              <a target="_blank" href="${unsolved_probs[i]['link']}">${unsolved_probs[i]['name']}</a>
+              </span>
+              `);
+
+          }
+
+          // add user statistics in the table_data
+          var tried_probs_count_html = `
+            <tr>
+              <th scope="row" class="text-center">Tried problems</th>
+              <td class="text-center blue-text">${data['tried_probs_count']}</td>
+            </tr>
+            `;
+          var solved_probs_count_html = `
+              <tr>
+                <th scope="row" class="text-center">Solved problems</th>
+                <td class="text-center green-text">${data['solved_probs_count']}</td>
+              </tr>
+              `;
+          $('#user_statistics .table_data').append(tried_probs_count_html);
+          $('#user_statistics .table_data').append(solved_probs_count_html);
 
           // console.log(data['tags']);
           ////////////////////////////////////////////////////////////////////////
@@ -125,7 +216,6 @@
           }
           // console.log(tag_labels);
           // console.log(tag_data);
-          $('#doughnut-chart-div').html('<canvas id="doughnut-chart" width="800" height="450"></canvas>');
           new Chart(document.getElementById("doughnut-chart"), {
             type: 'doughnut',
             data: {
@@ -206,7 +296,6 @@
             max_rating_data = Math.max(max_rating_data, prob_ratings[i]['count']);
           }
 
-          $('#problem_ratings_bar_chart_div').html('<canvas id="problem_ratings_bar_chart" width="800" height="450"></canvas>');
           new Chart(document.getElementById("problem_ratings_bar_chart"), {
             type: 'bar',
             data: {
@@ -295,7 +384,7 @@
           ////////////////////////////////////////////////////////////////////////
           // adding 3D Pie Chart for verdicts
           v_data = data['user_data']['verdicts']
-          console.log(v_data);
+          // console.log(v_data);
 
           am4core.ready(function() {
 
@@ -346,125 +435,172 @@
 
           }); // end am4core.ready()
 
+
+          $("#charts-div").prop('hidden', false);
+
         } else {
           console.log('error');
         }
-
-            $.ajax({
-              url: '/charts/getData/ratings',
-              data: {
-                'handle': handle
-              },
-              type: 'get',
-              dataType: 'json',
-              beforeSend: function() {
-                // alert('before send');
-              },
-              success: function(data) {
-                console.log(data['status_code']);
-                if (data.success) {
-                  console.log(data);
-
-                  ////////////////////////////////////////////////////////////////////////
-                  line_chart_data_list = data['line_chart_data_list']
-                  console.log(line_chart_data_list)
-                  am4core.ready(function() {
-
-                    // Themes begin
-                    am4core.useTheme(am4themes_animated);
-                    // Themes end
-
-                    // Create chart instance
-                    var chart = am4core.create("rating_line_chartdiv", am4charts.XYChart);
-                    chart.paddingRight = 20;
-                    var title = chart.titles.create();
-                    title.text = "User Rating";
-                    title.fontSize = 20;
-                    title.marginBottom = 30;
-                    title.fontWeight = 'bolder'
-
-                    // Add data
-                    chart.data = line_chart_data_list;
-
-                    // Create axes
-                    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-                    categoryAxis.dataFields.category = "date";
-                    categoryAxis.renderer.minGridDistance = 50;
-                    categoryAxis.renderer.grid.template.location = 0.5;
-                    categoryAxis.startLocation = 0.5;
-                    categoryAxis.endLocation = 0.5;
-
-
-                    categoryAxis.events.on("sizechanged", function(ev) {
-                      var axis = ev.target;
-                      var cellWidth = axis.pixelWidth / (axis.endIndex - axis.startIndex);
-                      if (cellWidth < axis.renderer.labels.template.maxWidth) {
-                        axis.renderer.labels.template.rotation = -45;
-                        axis.renderer.labels.template.horizontalCenter = "right";
-                        axis.renderer.labels.template.verticalCenter = "middle";
-                      } else {
-                        axis.renderer.labels.template.rotation = -45;
-                        axis.renderer.labels.template.horizontalCenter = "middle";
-                        axis.renderer.labels.template.verticalCenter = "top";
-                      }
-                    });
-                    // Create value axis
-                    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-                    valueAxis.baseValue = 0;
-
-                    // Create series
-                    var series = chart.series.push(new am4charts.LineSeries());
-                    series.dataFields.valueY = "rating";
-                    series.dataFields.categoryX = "date";
-                    series.dataFields.contesName = 'contestName';
-                    series.dataFields.ratingChange = 'ratingChange';
-                    series.dataFields.rank = 'rank';
-                    series.strokeWidth = 2;
-                    series.tensionX = 0.77;
-
-                    var bullet = series.bullets.push(new am4charts.CircleBullet());
-                    series.heatRules.push({
-                      target: bullet.circle,
-                      min: 5,
-                      max: 20,
-                      property: "radius"
-                    });
-
-                    // bullet is added because we add tooltip to a bullet for it to change color
-                    var bullet = series.bullets.push(new am4charts.Bullet());
-                    bullet.tooltipText = "= {valueY} ({ratingChange}) \n{contestName}\nrank: {rank}";
-
-                    bullet.adapter.add("fill", function(fill, target) {
-                      if (target.dataItem.valueY < 0) {
-                        return am4core.color("#FF0000");
-                      }
-                      return fill;
-                    })
-                    var range = valueAxis.createSeriesRange(series);
-                    range.value = 0;
-                    range.endValue = -1000;
-                    range.contents.stroke = am4core.color("#FF0000");
-                    range.contents.fill = range.contents.stroke;
-
-                    // Add scrollbar
-                    var scrollbarX = new am4charts.XYChartScrollbar();
-                    scrollbarX.series.push(series);
-                    chart.scrollbarX = scrollbarX;
-                    chart.scrollbarX.marginBottom = 70;
-                    chart.cursor = new am4charts.XYCursor();
-                    $('#rating_line_chartdiv rect').last().parent().parent().remove()
-
-                  }); // end am4core.ready()
+        $('.loader-div').prop('hidden', true);
+        $("#submitButton").prop("disabled", false);
+      },
+    });
+    $.ajax({
+      url: '/charts/getData/ratings',
+      data: {
+        'handle': handle
+      },
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function() {
+        // alert('before send');
+      },
+      success: function(data) {
+        console.log(data['status_code']);
+        if (data.success) {
+          // console.log(data);
+          //////////////////////////////////////////////////////////////////
+          // add user statistics in the table_data
+          $('#user_statistics .table_data').append(`
+          <tr>
+            <th scope="row" class="text-center">Contests</th>
+            <td class="text-center">${data['contests_count']}</td>
+          </tr>
+          `);
+          $('#user_statistics .table_data').append(`
+          <tr>
+            <th scope="row" class="text-center">Max rating</th>
+            <td class="text-center">${data['maxrating']}</td>
+          </tr>
+          `);
+          $('#user_statistics .table_data').append(`
+          <tr>
+            <th scope="row" class="text-center">Min rating</th>
+            <td class="text-center">${data['minrating']}</td>
+          </tr>
+          `);
+          $('#user_statistics .table_data').append(`
+          <tr>
+            <th scope="row" class="text-center">Max up</th>
+            <td class="text-center green-text">${data['max_rating_up']}</td>
+          </tr>
+          `);
+          $('#user_statistics .table_data').append(`
+          <tr>
+            <th scope="row" class="text-center">Max down</th>
+            <td class="text-center red-text">${data['max_rating_down']}</td>
+          </tr>
+          `);
+          $('#user_statistics .table_data').append(`
+          <tr>
+            <th scope="row" class="text-center">Best rank</th>
+            <td class="text-center green-text">${data['best_rank']}</td>
+          </tr>
+          `);
+          $('#user_statistics .table_data').append(`
+          <tr>
+            <th scope="row" class="text-center">Worst rank</th>
+            <td class="text-center red-text">${data['worst_rank']}</td>
+          </tr>
+          `);
 
 
 
-                } else {
-                  console.log('error!');
-                }
-                $('.loader').prop('hidden',true);
-                $("#submitButton").prop("disabled",false);
-              },
+          ////////////////////////////////////////////////////////////////////////
+          line_chart_data_list = data['line_chart_data_list']
+          // console.log(line_chart_data_list)
+          am4core.ready(function() {
+
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            // Create chart instance
+            var chart = am4core.create("rating_line_chartdiv", am4charts.XYChart);
+            chart.paddingRight = 20;
+            var title = chart.titles.create();
+            title.text = "User Rating";
+            title.fontSize = 20;
+            title.marginBottom = 30;
+            title.fontWeight = 'bolder'
+
+            // Add data
+            chart.data = line_chart_data_list;
+
+            // Create axes
+            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "date";
+            categoryAxis.renderer.minGridDistance = 50;
+            categoryAxis.renderer.grid.template.location = 0.5;
+            categoryAxis.startLocation = 0.5;
+            categoryAxis.endLocation = 0.5;
+
+
+            categoryAxis.events.on("sizechanged", function(ev) {
+              var axis = ev.target;
+              var cellWidth = axis.pixelWidth / (axis.endIndex - axis.startIndex);
+              if (cellWidth < axis.renderer.labels.template.maxWidth) {
+                axis.renderer.labels.template.rotation = -45;
+                axis.renderer.labels.template.horizontalCenter = "right";
+                axis.renderer.labels.template.verticalCenter = "middle";
+              } else {
+                axis.renderer.labels.template.rotation = -45;
+                axis.renderer.labels.template.horizontalCenter = "middle";
+                axis.renderer.labels.template.verticalCenter = "top";
+              }
             });
+            // Create value axis
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.baseValue = 0;
+
+            // Create series
+            var series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.valueY = "rating";
+            series.dataFields.categoryX = "date";
+            series.dataFields.contesName = 'contestName';
+            series.dataFields.ratingChange = 'ratingChange';
+            series.dataFields.rank = 'rank';
+            series.strokeWidth = 2;
+            series.tensionX = 0.77;
+
+            var bullet = series.bullets.push(new am4charts.CircleBullet());
+            series.heatRules.push({
+              target: bullet.circle,
+              min: 5,
+              max: 20,
+              property: "radius"
+            });
+
+            // bullet is added because we add tooltip to a bullet for it to change color
+            var bullet = series.bullets.push(new am4charts.Bullet());
+            bullet.tooltipText = "= {valueY} ({ratingChange}) \n{contestName}\nrank: {rank}";
+
+            bullet.adapter.add("fill", function(fill, target) {
+              if (target.dataItem.valueY < 0) {
+                return am4core.color("#FF0000");
+              }
+              return fill;
+            })
+            var range = valueAxis.createSeriesRange(series);
+            range.value = 0;
+            range.endValue = -1000;
+            range.contents.stroke = am4core.color("#FF0000");
+            range.contents.fill = range.contents.stroke;
+
+            // Add scrollbar
+            var scrollbarX = new am4charts.XYChartScrollbar();
+            scrollbarX.series.push(series);
+            chart.scrollbarX = scrollbarX;
+            chart.scrollbarX.marginBottom = 70;
+            chart.cursor = new am4charts.XYCursor();
+            $('#rating_line_chartdiv rect').last().parent().parent().remove()
+
+          }); // end am4core.ready()
+        } else {
+          console.log('error!');
+        }
+        $('.loader-div').prop('hidden', true);
+        $("#submitButton").prop("disabled", false);
       },
     });
 
