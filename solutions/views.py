@@ -36,41 +36,46 @@ def user_solution(request):
         print(id)
         my_list = []
         the_list = []
+        flag = 0
         for i in range(1,len(id)):
 
             x = id[i].find_all('td')
             a = []
             zx = {}
-            start = x[1].text
-            source_date = parse(start)
-            source_time_zone = pytz.timezone('Europe/Moscow')
-            source_date_with_timezone = source_time_zone.localize(source_date)
-            target_time_zone = pytz.timezone('Asia/Kolkata')
-            target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
-            s= target_date_with_timezone
-            k=s.replace(tzinfo=None)
+            if len(x)>=2 :
+                start = x[1].text
+                source_date = parse(start)
+                source_time_zone = pytz.timezone('Europe/Moscow')
+                source_date_with_timezone = source_time_zone.localize(source_date)
+                target_time_zone = pytz.timezone('Asia/Kolkata')
+                target_date_with_timezone = source_date_with_timezone.astimezone(target_time_zone)
+                s= target_date_with_timezone
+                k=s.replace(tzinfo=None)
 
-            a.append(x[0].text)
-            a.append(start)
-            a.append(x[2].text)
-            a.append(x[3].text)
-            a.append(x[4].text)
-            a.append(x[5].text)
-            a.append(x[6].text)
-            link1 = "https://www.codechef.com/viewsolution/" + x[0].text
-            view_link = '<a href="{}">View</a>'.format(link1)
-            a.append(view_link)
-            my_list.append(a)
-            zx[0] = x[0].text
-            zx[1] = x[1].text
-            zx[2] = x[2].text
-            zx[3] = x[3].text
-            zx[4] = x[4].text
-            zx[5] = x[5].text
-            zx[6] = x[6].text
-            zx[7] = link1
-            the_list.append(zx)
+                a.append(x[0].text)
+                a.append(start)
+                a.append(x[2].text)
+                a.append(x[3].text)
+                a.append(x[4].text)
+                a.append(x[5].text)
+                a.append(x[6].text)
+                link1 = "https://www.codechef.com/viewsolution/" + x[0].text
+                view_link = '<a href="{}">View</a>'.format(link1)
+                a.append(view_link)
+                my_list.append(a)
+                zx[0] = x[0].text
+                zx[1] = x[1].text
+                zx[2] = x[2].text
+                zx[3] = x[3].text
+                zx[4] = x[4].text
+                zx[5] = x[5].text
+                zx[6] = x[6].text
+                zx[7] = link1
+                the_list.append(zx)
+                flag = 1
         my_dict = {'my_list':my_list ,'the_list':the_list,'success':True }
+        if flag == 0 :
+            my_dict['success'] = False
         return render(request,'solution.html',my_dict)
 
     else :
@@ -122,7 +127,7 @@ def cf_submissions(request):
                     s = "https://codeforces.com/contest/{}/submission/{}".format(cont,submn.id)
                     submn.code_link = s
                     my_list.append(submn)
-                    
+
                 data['my_list'] = my_list
                 data['success'] = True
             else:

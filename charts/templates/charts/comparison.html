@@ -1,0 +1,489 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/material.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+<style media="screen">
+  #chartdivbar {
+    width: 100%;
+    height: 700px;
+  }
+
+  #solved-compare {
+    width: 100%;
+    height: 500px;
+  }
+
+  #myChart {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: white;
+  }
+
+  canvas {
+    margin: auto;
+    overflow: scroll;
+  }
+
+  #line-chart {
+    width: 100%;
+    height: 50px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: white;
+  }
+
+  #chartdivlines {
+    width: 100%;
+    height: 500px;
+  }
+</style>
+
+
+{% endblock %}
+
+{% block content %}
+
+
+
+
+<div class="pb-5" style="background:#f5f5f5;">
+  <div class="container">
+    <br>
+    <br>
+
+    <div class="form-control">
+      <label for="handle">Enter First Handle</label>
+      <input type="text" name="" value="" id="handle">
+      <label for="user2_handle">Enter Second Handle</label>
+      <input type="text" name="" id="user2_handle">
+
+    </div>
+    <br>
+    <br>
+    <button type="submit" name="button" class="btn btn-primary" id="submitbutton">Submit</button>
+    <br>
+  </div>
+  <div class="mt-5 p-5 chartBox">
+
+    <div id="charts-div" class="container text-center" hidden>
+
+
+      <div id="chartdivbar" align='center'>
+
+      </div>
+      <canvas id="myChart" width="1 " height="1"></canvas>
+      <br>
+      <br>
+
+
+      <br>
+      <br>
+      <div class="jumbotron">
+        <h2>Common Contests</h2>
+        <table id="table" class='table' align="center" border="1px"></table>
+      </div>
+      <h2>Stats</h2>
+      <table id='rank-table' align='center' border='1px'>
+
+      </table>
+      <br>
+      <br>
+      <div id="chartdivlines"></div>
+      <br>
+      <br>
+      <div id="solved-compare">
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+
+<script>
+  $('#submitbutton').click(function() {
+    handle = $('#handle').val()
+    handle2 = $('#user2_handle').val()
+
+    $.ajax({
+      url: '/charts/getComparison',
+      data: {
+        'handle': handle,
+        'user2_handle': handle2
+      },
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function() {
+        // alert('before send');
+      },
+      success: function(data) {
+        if (data.success) {
+          console.log("successss")
+          $("#charts-div").prop('hidden', false);
+          var Rating1 = data['Rating1']
+          var Rating2 = data['Rating2']
+          var Rating1list = data['User1_Ratings']
+          var Ratinglist2 = data['User2_Ratings']
+          var Contests = data['Contests']
+          var Ranks = data["Common_cont"]
+          var ctx = document.getElementById('myChart').getContext('2d');
+
+
+
+
+          am4core.ready(function() {
+
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            // Create chart instance
+            var chart = am4core.create("chartdivbar", am4charts.XYChart);
+
+            // Add data
+            chart.data = [{
+                "user": handle,
+                "rating": Rating1
+              },
+              {
+                "user": handle2,
+                "rating": Rating2
+              },
+            ];
+
+            // Create axes
+
+            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "user";
+            categoryAxis.renderer.grid.template.location = 0;
+            categoryAxis.renderer.minGridDistance = 30;
+
+            categoryAxis.renderer.labels.template.adapter.add("dy", function(dy, target) {
+              if (target.dataItem && target.dataItem.index & 2 == 2) {
+                return dy + 25;
+              }
+              return dy;
+            });
+
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            series.dataFields.valueY = "rating";
+            series.dataFields.categoryX = "user";
+            series.name = "rating";
+            series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+            series.columns.template.fillOpacity = .8;
+
+            var columnTemplate = series.columns.template;
+            columnTemplate.strokeWidth = 1;
+            columnTemplate.strokeOpacity = 1;
+            series.columns.template.width = am4core.percent(30);
+
+            var title = chart.titles.create();
+            title.text = "Max Rating";
+            title.fontSize = 25;
+            title.marginBottom = 30;
+          }); // end am4core.ready()
+
+
+
+
+
+
+
+
+
+          var table = document.getElementById("table");
+          table.innerHTML = ""
+          table.innerHTML += "<tr class='bg-info'><th>Contest ID</th><th> " + handle + " Ranks </th><th> " + handle2 + " Ranks </th></tr>";
+
+          for (var i = 0; i < Ranks.length; i++) {
+            var s1 = "https://codeforces.com/contest/" + data['ContestId'][i]
+            var s2 = "<a href=" + s1 + ">" + data['ContestName'][i] + "</a>"
+            var s = "<tr class = 'bg-light'><td>" + s2 + " </td><td> " + (data["Common_cont"][i][0]) + " </td><td> " + (data["Common_cont"][i][1]) + " </td> </tr>";
+            table.innerHTML += s;
+
+          }
+          var rank_table = document.getElementById("rank-table")
+          rank_table.innerHTML = ""
+          rank_table.innerHTML += "<tr class='bg-info'><th>Category</th><th> " + handle + "</th><th> " + handle2 + "</th></tr>";
+          var s = "<tr class = 'bg-light'><td>" + " Best Rank " + " </td><td> " + (data["User1_best_rank"]) + " </td><td> " + (data["User2_best_rank"]) + " </td> </tr>";
+          rank_table.innerHTML += s;
+          s = "<tr class = 'bg-light'><td>" + " Worst Rank " + " </td><td> " + (data["User1_worst_rank"]) + " </td><td> " + (data["User2_worst_rank"]) + " </td> </tr>";
+          rank_table.innerHTML += s;
+        } else {
+          alert("You have entered wrong handles")
+        }
+
+
+      }
+
+    });
+
+
+    $.ajax({
+      url: '/charts/getGraphs',
+      data: {
+        'handle': handle,
+        'user2_handle': handle2
+      },
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function() {
+        // alert('before send');
+      },
+      success: function(data) {
+        if (data.success) {
+
+
+          var Line_data = data['line_chart_data_list']
+
+
+
+
+          am4core.ready(function() {
+
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            // Create chart instance
+            var chart = am4core.create("chartdivlines", am4charts.XYChart);
+
+            //
+
+            // Increase contrast by taking evey second color
+            chart.colors.step = 2;
+
+            // Add data
+            chart.data = Line_data;
+
+            // Create axes
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.minGridDistance = 50;
+
+            // Create series
+            function createAxisAndSeries(field, name, opposite, bullet) {
+              var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+              if (chart.yAxes.indexOf(valueAxis) != 0) {
+                valueAxis.syncWithAxis = chart.yAxes.getIndex(0);
+              }
+
+              var series = chart.series.push(new am4charts.LineSeries());
+              series.dataFields.valueY = field;
+              series.dataFields.dateX = "date";
+              series.strokeWidth = 2;
+              series.yAxis = valueAxis;
+              series.name = name;
+              series.tooltipText = "{name}: [bold]{valueY}[/]";
+              series.tensionX = 0.8;
+              series.showOnInit = true;
+
+              var interfaceColors = new am4core.InterfaceColorSet();
+
+              switch (bullet) {
+                case "triangle":
+                  var bullet = series.bullets.push(new am4charts.Bullet());
+                  bullet.width = 8;
+                  bullet.height = 8;
+                  bullet.horizontalCenter = "middle";
+                  bullet.verticalCenter = "middle";
+
+                  var triangle = bullet.createChild(am4core.Triangle);
+                  triangle.stroke = interfaceColors.getFor("background");
+                  triangle.strokeWidth = 2;
+                  triangle.direction = "top";
+                  triangle.width = 8;
+                  triangle.height = 8;
+                  break;
+
+              }
+
+              valueAxis.renderer.line.strokeOpacity = 1;
+              valueAxis.renderer.line.strokeWidth = 2;
+              valueAxis.renderer.line.stroke = series.stroke;
+              valueAxis.renderer.labels.template.fill = series.stroke;
+              valueAxis.renderer.opposite = opposite;
+            }
+
+            createAxisAndSeries("rating1", handle, false, "circle");
+            createAxisAndSeries("rating2", handle2, true, "triangle");
+            var title = chart.titles.create();
+            title.text = "Rating Variation";
+            title.fontSize = 25;
+            title.marginBottom = 30;
+            // Add legend
+            chart.legend = new am4charts.Legend();
+
+            // Add cursor
+            chart.cursor = new am4charts.XYCursor();
+
+            // generate some random data, quite different range
+            function generateChartData() {
+              var chartData = [];
+              var firstDate = new Date();
+              firstDate.setDate(firstDate.getDate() - 100);
+              firstDate.setHours(0, 0, 0, 0);
+
+              var visits = 1600;
+              var hits = 2900;
+              var views = 8700;
+
+              for (var i = 0; i < 15; i++) {
+                // we create date objects here. In your data, you can have date strings
+                // and then set format of your dates using chart.dataDateFormat property,
+                // however when possible, use date objects, as this will speed up chart rendering.
+                var newDate = new Date(firstDate);
+                newDate.setDate(newDate.getDate() + i);
+
+                visits += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+                hits += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+                views += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+
+                chartData.push({
+                  date: newDate,
+                  visits: visits,
+
+                  views: views
+                });
+              }
+              return chartData;
+            }
+
+          }); // end am4core.ready()
+
+
+
+
+
+        }
+
+      },
+    });
+
+
+
+    $.ajax({
+      url: '/charts/get_rating_comparison',
+      data: {
+        'handle': handle,
+        'user2_handle': handle2
+      },
+      type: 'get',
+      dataType: 'json',
+      beforeSend: function() {
+        // alert('before send');
+      },
+      success: function(data) {
+
+        if (data.success) {
+
+
+
+
+          console.log(data);
+
+          var rank_table = document.getElementById("rank-table");
+          var s = "<tr class = 'bg-light'><td>" + " Problems Attempted " + " </td><td> " + (data["User1_Attempted"]) + " </td><td> " + (data["User2_Attempted"]) + " </td> </tr>";
+          rank_table.innerHTML += s;
+          s = "<tr class = 'bg-light'><td>" + " Problems Solved " + " </td><td> " + (data["User1_Solved"]) + " </td><td> " + (data["User2_Solved"]) + " </td> </tr>";
+          rank_table.innerHTML += s;
+          s = "<tr class = 'bg-light'><td>" + "Unsolved Problems  " + " </td><td> " + ((data["User1_Attempted"]) - (data["User1_Solved"])) + " </td><td> " + ((data["User2_Attempted"]) - (data["User2_Solved"])) + " </td> </tr>";
+          rank_table.innerHTML += s;
+          s = "<tr class = 'bg-light'><td>" + " Submissions per problem " + " </td><td> " + (data["Submissions_per_prob_1"]) + " </td><td> " + (data["Submissions_per_prob_2"]) + " </td> </tr>";
+          rank_table.innerHTML += s;
+          var problem_solved = data['problem_ratings']
+          am4core.ready(function() {
+
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            // Create chart instance
+            var chart = am4core.create("solved-compare", am4charts.XYChart);
+
+            // Add data
+            chart.data = problem_solved
+            var title = chart.titles.create();
+            title.text = "Problems Solved per Rating";
+            title.fontSize = 25;
+            title.marginBottom = 30;
+            // Create axes
+            var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "rating";
+            categoryAxis.numberFormatter.numberFormat = "#";
+            categoryAxis.renderer.inversed = true;
+            categoryAxis.renderer.grid.template.location = 0;
+            categoryAxis.renderer.cellStartLocation = 0.1;
+            categoryAxis.renderer.cellEndLocation = 0.9;
+
+            var valueAxis = chart.xAxes.push(new am4charts.ValueAxis());
+            valueAxis.renderer.opposite = true;
+
+            // Create series
+            function createSeries(field, name) {
+              var series = chart.series.push(new am4charts.ColumnSeries());
+              series.dataFields.valueX = field;
+              series.dataFields.categoryY = "rating";
+              series.name = name;
+              series.columns.template.tooltipText = "{name}: [bold]{valueX}[/]";
+              series.columns.template.height = am4core.percent(100);
+              series.sequencedInterpolation = true;
+
+              var valueLabel = series.bullets.push(new am4charts.LabelBullet());
+              valueLabel.label.text = "{valueX}";
+              valueLabel.label.horizontalCenter = "left";
+              valueLabel.label.dx = 10;
+              valueLabel.label.hideOversized = false;
+              valueLabel.label.truncate = false;
+
+              var categoryLabel = series.bullets.push(new am4charts.LabelBullet());
+              categoryLabel.label.text = "{name}";
+              categoryLabel.label.horizontalCenter = "right";
+              categoryLabel.label.dx = -10;
+              categoryLabel.label.fill = am4core.color("#fff");
+              categoryLabel.label.hideOversized = false;
+              categoryLabel.label.truncate = false;
+            }
+
+            createSeries("user1", handle);
+            createSeries("user2", handle2);
+
+          }); // end am4core.ready()
+
+
+
+
+
+        }
+
+
+      },
+
+
+    });
+
+
+
+
+
+
+
+  });
+</script>
+
+
+
+
+
+{% endblock %}
