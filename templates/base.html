@@ -8,6 +8,7 @@
   <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
   <link rel="stylesheet" href="{% static "css/jadu.css"%}">
   <link rel="stylesheet" href="{% static "css/jadu-pro.css"%}">
+<link href='https://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
 
   <script src="{% static 'js/jquery-3.5.1.js' %}"></script> <!-- JQUERY HERE -->
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -17,7 +18,17 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/js/all.min.js"></script>
+<style media="screen">
+body {
+  font-family: font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
 
+
+
+
+
+
+</style>
   {% block head %}{% endblock head %}
 
 
@@ -57,6 +68,7 @@
       &::after {
         bottom: 0;
       }
+
     }
   </style>
 </head>
@@ -99,7 +111,11 @@
             <a class="nav-link" href="{% url 'forum:home' %}">Discussion Forum</a>
           </li>
         </ul>
-
+        <ul class='navbar-nav'>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'Team' %}">Meet The Team</a>
+          </li>
+        </ul>
         <ul class="navbar-nav ml-auto">
           <form class="form-inline my-2 my-lg-0" action="{% url 'search_users' %}" method="get">
 
@@ -168,6 +184,19 @@
     {% block content%}
     {% endblock %}
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

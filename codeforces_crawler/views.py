@@ -19,3 +19,7 @@ def IndexView(request):
 
 
     return render(request,'index.html')
+
+
+def Team(request):
+    return render(request,'team.html')

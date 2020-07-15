@@ -2,23 +2,36 @@
 {% block content %}
   <br>
   <br>
-  <h1>Fill out the Following form to get the Codeforces solution</h1>
 
-  <div class="jumbotron">
 
-  <form  method="post" action="{% url 'solutions:cf_submissions' %}" >
-    {% csrf_token %}
-    <label for="contestno">Contest Code</label>
-    <input type="text" name="contestno" value="">
-    <label for="username">User Account</label>
-    <input type="username" name="username" value="">
-    <label for="problem">Problem Code</label>
-    <input type="text" name="problem" value="">
-    <input type="submit" name="" value="submissions">
-  </form>
+<div class="container">
+    <h1>Fill out the Following form to get the Codeforces solution</h1>
+    <div class="">
+      <form  method="post" action="{% url 'solutions:cf_submissions' %}" >
+        {% csrf_token %}
+        <div class="">
+          <div class="md-form">
 
-</div>
-<div class="jumbotron">
+            <input type="text" name="contestno" value="" class="form-control" placeholder="Contest Code">
+          </div>
+          <div class="md-form">
+
+            <input type="text" name="username" value="" class="form-control" placeholder="User Account">
+          </div>
+          <div class="md-form">
+
+            <input type="text" name="problem" value="" class="form-control" placeholder="Problem Code">
+          </div>
+          <div class="float-right">
+            <input type="submit" name="" value="submissions" class="btn btn-primary">
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+
+
   <table class='table'>
     {% if success %}
     <tr class='bg-info'>
@@ -44,11 +57,13 @@
     </tr>
     {% endfor %}
     {% else %}
-    <h1>Error!</h1>
+    <p>You have not submitted or there is an error!</p>
 
     {% endif %}
   </table>
 
-</div>
+
 
 {% endblock %}
+
+</div>

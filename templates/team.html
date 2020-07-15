@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+</style>
+
+<body>
+<br>
+<h2 align='center'>The Team</h2>
+<br>
+<br>
+
+
+
+
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-4">
+      <div class="card testimonial-card">
+
+        <!-- Background color -->
+        <div class="card-up indigo lighten-1"></div>
+
+        <!-- Avatar -->
+        <div class="avatar mx-auto white">
+          <img src="/static/WhatsApp Image 2020-07-14 at 23.27.48.jpeg" class="rounded-circle"
+            alt="woman avatar">
+        </div>
+
+        <!-- Content -->
+        <div class="card-body">
+          <!-- Name -->
+          <h4 class="card-title">Sanjit Sahu</h4>
+          <hr>
+          <!-- Quotation -->
+          <p><i class=""></i>Developer
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="col-4">
+      <div class="card testimonial-card">
+
+        <!-- Background color -->
+        <div class="card-up indigo lighten-1"></div>
+
+        <!-- Avatar -->
+        <div class="avatar mx-auto white">
+          <img src="/static/WhatsApp Image 2020-07-14 at 23.27.56.jpeg" class="rounded-circle"
+            alt="woman avatar">
+        </div>
+
+        <!-- Content -->
+        <div class="card-body">
+          <!-- Name -->
+          <h4 class="card-title">Sudesh Chaudhary</h4>
+          <hr>
+          <!-- Quotation -->
+          <p><i class=""></i> Developer
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="col-4">
+      <div class="card testimonial-card">
+
+        <!-- Background color -->
+        <div class="card-up indigo lighten-1"></div>
+
+        <!-- Avatar -->
+        <div class="avatar mx-auto white">
+          <img src="/static/WhatsApp Image 2020-07-15 at 01.53.33.jpeg" class="rounded-circle"
+            alt="woman avatar">
+        </div>
+
+        <!-- Content -->
+        <div class="card-body">
+          <!-- Name -->
+          <h4 class="card-title">Ajinkya Kadam</h4>
+          <hr>
+          <!-- Quotation -->
+          <p><i class=""></i> Developer
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<!-- Card -->
+
+
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+<br>
+
+<br>
+
+
+
+
+
+
+
+  {% endblock %}

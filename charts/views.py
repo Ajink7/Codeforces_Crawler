@@ -204,6 +204,8 @@ def get_both_user_ratings(request):
                 old2 = 1500
                 print(len(result1))
                 print(len(result2))
+                min1 = 10000
+                max1 = 0
                 while i<len(result1) and j<len(result2):
                     contest1 = result1[i]
                     contest2 = result2[j]
@@ -219,6 +221,8 @@ def get_both_user_ratings(request):
 
                         old2 = contest2['newRating']
                         new2 = contest2['newRating']
+                        min1= min(min1,min(old1,old2))
+                        max1 = max(max1,max(old1,old2))
                         time_list.append(time_str)
                         rating_list.append(new1)
                         rating_list2.append(new2)
@@ -238,7 +242,8 @@ def get_both_user_ratings(request):
                         rating_list2.append(old2)
                         line_chart_data_list.append({'date':time_str,'rating1':old1,'rating2':old2,})
                         i=i+1
-
+                        min1= min(min1,min(old1,old2))
+                        max1 = max(max1,max(old1,old2))
                     else :
                         month = datetime.datetime.utcfromtimestamp(time2).month
                         day = datetime.datetime.utcfromtimestamp(time2).day
@@ -251,7 +256,8 @@ def get_both_user_ratings(request):
                         rating_list.append(old1)
                         rating_list2.append(new2)
                         j=j+1
-
+                        min1= min(min1,min(old1,old2))
+                        max1 = max(max1,max(old1,old2))
 
 
                 if i==len(result1):
@@ -269,6 +275,8 @@ def get_both_user_ratings(request):
                         rating_list2.append(old2)
                         rating_list.append(old1)
                         j=j+1
+                        min1= min(min1,min(old1,old2))
+                        max1 = max(max1,max(old1,old2))
 
                 elif j==len(result2) :
                     while i<len(result1):
@@ -285,7 +293,8 @@ def get_both_user_ratings(request):
                         rating_list2.append(old2)
                         rating_list.append(old1)
                         i=i+1
-
+                        min1= min(min1,min(old1,old2))
+                        max1 = max(max1,max(old1,old2))
 
 
                 """
@@ -322,7 +331,10 @@ def get_both_user_ratings(request):
                 """
                 data['line_chart_data_list'] = line_chart_data_list
                 #print(line_chart_data_list)
-
+                min_rating = int(min1/100)*100
+                max_rating = int(max1/100)*100
+                data['min_rating'] = min_rating
+                data['max_rating'] = max_rating
                 data['success'] = True
 
     return JsonResponse(data)

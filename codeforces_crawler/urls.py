@@ -32,7 +32,7 @@ urlpatterns = [
     path('solutions/',include('solutions.urls')),
     path('forum/',include('forum.urls')),
     path('charts/',include('charts.urls')),
-
+    path('team/',views.Team,name = 'Team'),
     # Note that you do not necessarily need the URLs provided by django.contrib.auth.urls.
     # Instead of the URLs login, logout, and password_change (among others),
     # you can use the URLs provided by allauth: account_login, account_logout, account_set_password…

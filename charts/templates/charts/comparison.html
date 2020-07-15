@@ -12,6 +12,14 @@
 <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
 
 <style media="screen">
+  .table{
+    background-color: white;
+
+  }
+  .chartBox {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: white;
+  }
   #chartdivbar {
     width: 100%;
     height: 700px;
@@ -43,6 +51,14 @@
     width: 100%;
     height: 500px;
   }
+  .loader-div {
+    position: absolute;
+    left: 50%;
+
+  }
+  tr{
+    background-color: rgb(240,240,240);
+  }
 </style>
 
 
@@ -54,28 +70,37 @@
 
 
 <div class="pb-5" style="background:#f5f5f5;">
-  <div class="container">
+  <div class="container p-5">
     <br>
     <br>
+    <div class="form-group">
+      <div class="form-control">
+        <label for="handle">Enter First Handle</label>
+        <br>
+        <div class="form-inline">
+          <input autofocus type="text" name="" value="" id="handle">
+        </div>
+        <br>
+        <label for="user2_handle">Enter Second Handle</label>
+        <div class="form-inline">
+          <input autofocus type="text" name="" id="user2_handle">
+        </div>
 
-    <div class="form-control">
-      <label for="handle">Enter First Handle</label>
-      <input type="text" name="" value="" id="handle">
-      <label for="user2_handle">Enter Second Handle</label>
-      <input type="text" name="" id="user2_handle">
 
+      </div>
     </div>
+
     <br>
     <br>
     <button type="submit" name="button" class="btn btn-primary" id="submitbutton">Submit</button>
     <br>
   </div>
-  <div class="mt-5 p-5 chartBox">
+
 
     <div id="charts-div" class="container text-center" hidden>
 
 
-      <div id="chartdivbar" align='center'>
+      <div class="mt-5 p-5 chartBox" id="chartdivbar" align='center'>
 
       </div>
       <canvas id="myChart" width="1 " height="1"></canvas>
@@ -85,26 +110,59 @@
 
       <br>
       <br>
-      <div class="jumbotron">
+      <div class="mt-5 p-5 chartBox">
         <h2>Common Contests</h2>
-        <table id="table" class='table' align="center" border="1px"></table>
-      </div>
-      <h2>Stats</h2>
-      <table id='rank-table' align='center' border='1px'>
+        <div class="table-responsive" style="border-radius:8px;">
+          <table id="table" class="table table-borderless table-hover" style="background-color: #f8f9fa;" align="center" ></table>
+        </div>
 
-      </table>
+      </div>
+
+      <div class="mt-5 p-5 chartBox">
+        <h2>Stats</h2>
+        <div class="table-responsive"  style='border-radius:8px;'>
+          <table class="table table-borderless table-hover" id='rank-table' align='center' >
+
+          </table>
+        </div>
+
+      </div>
+
       <br>
       <br>
-      <div id="chartdivlines"></div>
+      <div class="mt-5 p-5 chartBox" id="chartdivlines"></div>
       <br>
       <br>
-      <div id="solved-compare">
+      <div class="mt-5 p-5 chartBox" id="solved-compare">
 
       </div>
 
     </div>
-  </div>
 
+
+
+
+
+
+
+
+
+
+  <div class="loader-div" hidden>
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-blue-only">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -113,7 +171,7 @@
   $('#submitbutton').click(function() {
     handle = $('#handle').val()
     handle2 = $('#user2_handle').val()
-
+    $('.loader-div').prop('hidden', false);
     $.ajax({
       url: '/charts/getComparison',
       data: {
@@ -176,6 +234,9 @@
 
             var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
+            valueAxis.min = 0;
+            valueAxis.max = 2300;
+
             // Create series
             var series = chart.series.push(new am4charts.ColumnSeries());
             series.dataFields.valueY = "rating";
@@ -193,6 +254,8 @@
             title.text = "Max Rating";
             title.fontSize = 25;
             title.marginBottom = 30;
+          chart.logo.disabled = true;
+
           }); // end am4core.ready()
 
 
@@ -204,22 +267,24 @@
 
 
           var table = document.getElementById("table");
-          table.innerHTML = ""
+          table.innerHTML = "<thead>";
           table.innerHTML += "<tr class='bg-info'><th>Contest ID</th><th> " + handle + " Ranks </th><th> " + handle2 + " Ranks </th></tr>";
-
+          table.innerHTML += "</thead>";
+          table.innerHTML += "<tbody>";
           for (var i = 0; i < Ranks.length; i++) {
             var s1 = "https://codeforces.com/contest/" + data['ContestId'][i]
             var s2 = "<a href=" + s1 + ">" + data['ContestName'][i] + "</a>"
-            var s = "<tr class = 'bg-light'><td>" + s2 + " </td><td> " + (data["Common_cont"][i][0]) + " </td><td> " + (data["Common_cont"][i][1]) + " </td> </tr>";
+            var s = "<tr ><td>" + s2 + " </td><td> " + (data["Common_cont"][i][0]) + " </td><td> " + (data["Common_cont"][i][1]) + " </td> </tr>";
             table.innerHTML += s;
 
           }
+          table.innerHTML += "</tbody>";
           var rank_table = document.getElementById("rank-table")
           rank_table.innerHTML = ""
           rank_table.innerHTML += "<tr class='bg-info'><th>Category</th><th> " + handle + "</th><th> " + handle2 + "</th></tr>";
-          var s = "<tr class = 'bg-light'><td>" + " Best Rank " + " </td><td> " + (data["User1_best_rank"]) + " </td><td> " + (data["User2_best_rank"]) + " </td> </tr>";
+          var s = "<tr ><td>" + " Best Rank " + " </td><td> " + (data["User1_best_rank"]) + " </td><td> " + (data["User2_best_rank"]) + " </td> </tr>";
           rank_table.innerHTML += s;
-          s = "<tr class = 'bg-light'><td>" + " Worst Rank " + " </td><td> " + (data["User1_worst_rank"]) + " </td><td> " + (data["User2_worst_rank"]) + " </td> </tr>";
+          s = "<tr ><td>" + " Worst Rank " + " </td><td> " + (data["User1_worst_rank"]) + " </td><td> " + (data["User2_worst_rank"]) + " </td> </tr>";
           rank_table.innerHTML += s;
         } else {
           alert("You have entered wrong handles")
@@ -263,7 +328,7 @@
             //
 
             // Increase contrast by taking evey second color
-            chart.colors.step = 2;
+            chart.colors.step = 4;
 
             // Add data
             chart.data = Line_data;
@@ -275,6 +340,8 @@
             // Create series
             function createAxisAndSeries(field, name, opposite, bullet) {
               var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+              valueAxis.min = data['min_rating'] - 100 ;
+              valueAxis.max = data['max_rating'] + 100;
               if (chart.yAxes.indexOf(valueAxis) != 0) {
                 valueAxis.syncWithAxis = chart.yAxes.getIndex(0);
               }
@@ -282,7 +349,7 @@
               var series = chart.series.push(new am4charts.LineSeries());
               series.dataFields.valueY = field;
               series.dataFields.dateX = "date";
-              series.strokeWidth = 2;
+              series.strokeWidth = 4;
               series.yAxis = valueAxis;
               series.name = name;
               series.tooltipText = "{name}: [bold]{valueY}[/]";
@@ -317,7 +384,7 @@
             }
 
             createAxisAndSeries("rating1", handle, false, "circle");
-            createAxisAndSeries("rating2", handle2, true, "triangle");
+            createAxisAndSeries("rating2", handle2, true, "circle");
             var title = chart.titles.create();
             title.text = "Rating Variation";
             title.fontSize = 25;
@@ -327,7 +394,7 @@
 
             // Add cursor
             chart.cursor = new am4charts.XYCursor();
-
+            chart.logo.disabled = true;
             // generate some random data, quite different range
             function generateChartData() {
               var chartData = [];
@@ -394,13 +461,13 @@
           console.log(data);
 
           var rank_table = document.getElementById("rank-table");
-          var s = "<tr class = 'bg-light'><td>" + " Problems Attempted " + " </td><td> " + (data["User1_Attempted"]) + " </td><td> " + (data["User2_Attempted"]) + " </td> </tr>";
+          var s = "<tr ><td>" + " Problems Attempted " + " </td><td> " + (data["User1_Attempted"]) + " </td><td> " + (data["User2_Attempted"]) + " </td> </tr>";
           rank_table.innerHTML += s;
-          s = "<tr class = 'bg-light'><td>" + " Problems Solved " + " </td><td> " + (data["User1_Solved"]) + " </td><td> " + (data["User2_Solved"]) + " </td> </tr>";
+          s = "<tr ><td>" + " Problems Solved " + " </td><td> " + (data["User1_Solved"]) + " </td><td> " + (data["User2_Solved"]) + " </td> </tr>";
           rank_table.innerHTML += s;
-          s = "<tr class = 'bg-light'><td>" + "Unsolved Problems  " + " </td><td> " + ((data["User1_Attempted"]) - (data["User1_Solved"])) + " </td><td> " + ((data["User2_Attempted"]) - (data["User2_Solved"])) + " </td> </tr>";
+          s = "<tr ><td>" + "Unsolved Problems  " + " </td><td> " + ((data["User1_Attempted"]) - (data["User1_Solved"])) + " </td><td> " + ((data["User2_Attempted"]) - (data["User2_Solved"])) + " </td> </tr>";
           rank_table.innerHTML += s;
-          s = "<tr class = 'bg-light'><td>" + " Submissions per problem " + " </td><td> " + (data["Submissions_per_prob_1"]) + " </td><td> " + (data["Submissions_per_prob_2"]) + " </td> </tr>";
+          s = "<tr ><td>" + " Submissions per problem " + " </td><td> " + (data["Submissions_per_prob_1"]) + " </td><td> " + (data["Submissions_per_prob_2"]) + " </td> </tr>";
           rank_table.innerHTML += s;
           var problem_solved = data['problem_ratings']
           am4core.ready(function() {
@@ -429,7 +496,7 @@
 
             var valueAxis = chart.xAxes.push(new am4charts.ValueAxis());
             valueAxis.renderer.opposite = true;
-
+            chart.logo.disabled = true;
             // Create series
             function createSeries(field, name) {
               var series = chart.series.push(new am4charts.ColumnSeries());
@@ -467,7 +534,7 @@
 
         }
 
-
+        $('.loader-div').prop('hidden', true);
       },
 
 
