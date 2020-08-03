@@ -137,3 +137,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+db.sqlite3
+codeforces_crawler/settings.py
